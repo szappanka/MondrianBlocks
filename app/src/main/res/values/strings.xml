@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">MondrianBocksDissertation</string>
+    <string name="app_name">MondrianBlocks</string>
+    <string name="logo">Mondrian Logo</string>
+    <string name="saved_users">Mentett játékosok</string>
+    <string name="next">Tovább</string>
+    <string name="back">Vissza</string>
 </resources>
