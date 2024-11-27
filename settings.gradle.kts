@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "MondrianBocksDissertation"
 include(":app")
- 
+include(":openCV")
