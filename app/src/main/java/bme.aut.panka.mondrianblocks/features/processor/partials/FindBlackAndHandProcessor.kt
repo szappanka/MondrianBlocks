@@ -24,44 +24,24 @@ class FindBlackAndHandProcessor : ImageProcessor {
             val canvas = android.graphics.Canvas(resultBitmap)
             val paint = android.graphics.Paint()
 
-            val outerWidth = rectangle?.width()!! / 8
-            val outerHeight = rectangle.height() / 8
+            val gridColors = processGridColors(
+                it,
+                rectangle ?: return null,
+            ) { color -> findClosestColorBGR(color) }
 
-            val innerWidth = (outerWidth * (1 - INWARD_OFFSET_PERCENTAGE)).toInt()
-            val innerHeight = (outerHeight * (1 - INWARD_OFFSET_PERCENTAGE)).toInt()
-
-            val offsetX = (outerWidth * INWARD_OFFSET_PERCENTAGE / 2).toInt()
-            val offsetY = (outerHeight * INWARD_OFFSET_PERCENTAGE / 2).toInt()
-
+            // TODO: ez innen úgyis kuka
             for (i in 0 until 8) {
                 for (j in 0 until 8) {
-                    val startX = rectangle.left + (i * outerWidth + (outerWidth - innerWidth) / 2).toInt()
-                    val startY = rectangle.top + (j * outerHeight + (outerHeight - innerHeight) / 2).toInt()
-
-                    val fieldRect = Rect(
-                        startX + offsetX,
-                        startY + offsetY,
-                        startX + offsetX + innerWidth,
-                        startY + offsetY + innerHeight
-                    )
-
-                    val color = calculateAverageColor(
-                        cropCenterToSquare(
-                            Bitmap.createBitmap(
-                                it,
-                                fieldRect.left,
-                                fieldRect.top,
-                                fieldRect.width(),
-                                fieldRect.height()
-                            )
-                        )
-                    )
-
-                    val closestColorName = findClosestColorBGR(color)
-
-                    val blockColor = blockColors[closestColorName?.uppercase()]?.toArgb()
+                    val colorName = gridColors[i][j]
+                    val blockColor = blockColors[colorName?.uppercase()]?.toArgb()
                         ?: MondrianGray.toArgb()
 
+                    val fieldRect = Rect(
+                        rectangle.left + i * (rectangle.width() / 8),
+                        rectangle.top + j * (rectangle.height() / 8),
+                        rectangle.left + (i + 1) * (rectangle.width() / 8),
+                        rectangle.top + (j + 1) * (rectangle.height() / 8)
+                    )
                     paint.color = blockColor
                     paint.style = android.graphics.Paint.Style.FILL
                     canvas.drawRect(
@@ -73,6 +53,7 @@ class FindBlackAndHandProcessor : ImageProcessor {
                     )
                 }
             }
+
             return ProcessedResult(bitmap = resultBitmap, boundingRect = rectangle)
         }
         return null

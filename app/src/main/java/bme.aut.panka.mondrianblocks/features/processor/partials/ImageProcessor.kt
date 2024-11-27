@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
+import bme.aut.panka.mondrianblocks.GameData.INWARD_OFFSET_PERCENTAGE
 import bme.aut.panka.mondrianblocks.GameData.initializedColors
 import kotlinx.coroutines.CoroutineScope
 import kotlin.math.sqrt
@@ -103,7 +104,6 @@ interface ImageProcessor {
         return cropCenterToSquare(rotatedBitmap)
     }
 
-
     fun findClosestColorBGR(color: IntArray): String? {
         val distances = mutableMapOf<String, MutableList<Double>>()
 
@@ -135,4 +135,53 @@ interface ImageProcessor {
         }
         return null
     }
+
+    fun processGridColors(
+        bitmap: Bitmap,
+        rectangle: Rect,
+        findClosestColor: (IntArray) -> String?
+    ): Array<Array<String?>> {
+        val result = Array(8) { Array<String?>(8) { null } }
+
+        val outerWidth = rectangle.width() / 8
+        val outerHeight = rectangle.height() / 8
+
+        val innerWidth = (outerWidth * (1 - INWARD_OFFSET_PERCENTAGE)).toInt()
+        val innerHeight = (outerHeight * (1 - INWARD_OFFSET_PERCENTAGE)).toInt()
+
+        val offsetX = (outerWidth * INWARD_OFFSET_PERCENTAGE / 2).toInt()
+        val offsetY = (outerHeight * INWARD_OFFSET_PERCENTAGE / 2).toInt()
+
+        for (i in 0 until 8) {
+            for (j in 0 until 8) {
+                val startX = rectangle.left + (i * outerWidth + (outerWidth - innerWidth) / 2).toInt()
+                val startY = rectangle.top + (j * outerHeight + (outerHeight - innerHeight) / 2).toInt()
+
+                val fieldRect = Rect(
+                    startX + offsetX,
+                    startY + offsetY,
+                    startX + offsetX + innerWidth,
+                    startY + offsetY + innerHeight
+                )
+
+                val croppedBitmap = cropCenterToSquare(
+                    Bitmap.createBitmap(
+                        bitmap,
+                        fieldRect.left,
+                        fieldRect.top,
+                        fieldRect.width(),
+                        fieldRect.height()
+                    )
+                )
+
+                val averageColor = calculateAverageColor(croppedBitmap)
+                val closestColorName = findClosestColor(averageColor)
+                result[i][j] = closestColorName
+            }
+        }
+
+        return result
+    }
+
+
 }
