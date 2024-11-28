@@ -45,10 +45,14 @@ import bme.aut.panka.mondrianblocks.ui.theme.yellow
 import org.opencv.android.OpenCVLoader
 import android.graphics.Bitmap
 import android.graphics.Rect
+import android.os.SystemClock
 import bme.aut.panka.mondrianblocks.components.DisplayProcessedBitmap
+import bme.aut.panka.mondrianblocks.data.puzzle.Puzzle
+import bme.aut.panka.mondrianblocks.features.processor.GamePlaying
 import bme.aut.panka.mondrianblocks.features.processor.partials.BlueMaskProcessor
 import bme.aut.panka.mondrianblocks.features.processor.partials.FindBlackAndHandProcessor
 import bme.aut.panka.mondrianblocks.features.processor.partials.InitialisationProcessor
+import bme.aut.panka.mondrianblocks.features.processor.partials.PuzzleMatchingProcessor
 import bme.aut.panka.mondrianblocks.features.processor.partials.RawImageProcessor
 
 enum class GameState {
@@ -73,6 +77,11 @@ class GameActivity : ComponentActivity() {
     private var processedBitmap by mutableStateOf<Bitmap?>(null)
     private var puzzleRect by mutableStateOf<Rect?>(null)
 
+    val selectedUser = GameData.selectedUser
+    val selectedPuzzle = GameData.selectedPuzzle
+    var actualPuzzle by mutableStateOf<Puzzle?>(GameData.selectedPuzzle)
+    private var playingStartTime: Long? = null
+
 
     val rawImageProcessor = RawImageProcessor()
     val blueMaskProcessor = BlueMaskProcessor().apply {
@@ -87,20 +96,28 @@ class GameActivity : ComponentActivity() {
                 gameState = GameState.FIND_BLACK
             }
         }
-
     }
-
     val findBlackAndHandProcessor = FindBlackAndHandProcessor().apply {
         onAllBlackPlaced = {
             runOnUiThread {
+                playingStartTime = SystemClock.elapsedRealtime()
                 gameState = GameState.PLAYING
             }
         }
     }
 
+    val puzzleMatchingProcessor = PuzzleMatchingProcessor(
+        actualPuzzle = actualPuzzle,
+        updateActualPuzzle = { newPuzzle -> actualPuzzle = newPuzzle },
+        getPlayingStartTime = { playingStartTime }, // Lambda függvényt adunk át
+        onGameFinished = {
+            runOnUiThread {
+                gameState = GameState.FINISHED
+            }
+        }
+    )
+
     private var currentProcessor: ImageProcessor = blueMaskProcessor
-    val selectedUser = GameData.selectedUser
-    val selectedPuzzle = GameData.selectedPuzzle
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -159,32 +176,27 @@ class GameActivity : ComponentActivity() {
 
                                 when (gameState) {
                                     GameState.STARTING -> {
-                                        Text("STARTING")
                                         GameStarting()
                                         currentProcessor = blueMaskProcessor
                                     }
 
                                     GameState.INITIALISING -> {
-                                        Text("INITIALISING")
                                         GameStarting()
                                         currentProcessor = initProcessor
                                     }
 
                                     GameState.FIND_BLACK -> {
-                                        Text("FIND_BLACK")
                                         GameInit(selectedPuzzle!!)
                                         currentProcessor = findBlackAndHandProcessor
                                     }
 
                                     GameState.PLAYING -> {
-                                        Text("PLAYING")
-                                        //gameState = GameState.FINISHED
-                                        currentProcessor = rawImageProcessor
+                                        GamePlaying(actualPuzzle!!, SystemClock.elapsedRealtime() - playingStartTime!!)
+                                        currentProcessor = puzzleMatchingProcessor
                                     }
 
                                     GameState.FINISHED -> {
                                         Text("FINISHED")
-                                        //gameState = GameState.STARTING
                                     }
                                 }
                                 Column(

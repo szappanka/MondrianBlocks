@@ -152,6 +152,11 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        setScreen(ScreenState.MAIN_MENU)
+    }
 }
 
 @Preview(showBackground = true)
