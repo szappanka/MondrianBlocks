@@ -81,18 +81,22 @@ class GameActivity : ComponentActivity() {
             puzzleRect = result.boundingRect
         }
     }
-    val initProcessor by lazy {
-        InitialisationProcessor().apply {
-            onInitProcessed = {
-                runOnUiThread {
-                    gameState = GameState.FIND_BLACK
-                }
+    val initProcessor = InitialisationProcessor().apply {
+        onInitProcessed = {
+            runOnUiThread {
+                gameState = GameState.FIND_BLACK
+            }
+        }
 
+    }
+
+    val findBlackAndHandProcessor = FindBlackAndHandProcessor().apply {
+        onAllBlackPlaced = {
+            runOnUiThread {
+                gameState = GameState.PLAYING
             }
         }
     }
-
-    val findBlackAndHandProcessor = FindBlackAndHandProcessor()
 
     private var currentProcessor: ImageProcessor = blueMaskProcessor
     val selectedUser = GameData.selectedUser
@@ -138,8 +142,7 @@ class GameActivity : ComponentActivity() {
                                 )
                             )
                             Text(
-                                "Felhasználó: ${selectedUser?.name}",
-                                style = TextStyle(
+                                "Felhasználó: ${selectedUser?.name}", style = TextStyle(
                                     color = Color.Black,
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold
@@ -156,29 +159,32 @@ class GameActivity : ComponentActivity() {
 
                                 when (gameState) {
                                     GameState.STARTING -> {
+                                        Text("STARTING")
                                         GameStarting()
                                         currentProcessor = blueMaskProcessor
                                     }
 
                                     GameState.INITIALISING -> {
-                                        GameStarting()
                                         Text("INITIALISING")
+                                        GameStarting()
                                         currentProcessor = initProcessor
                                     }
 
                                     GameState.FIND_BLACK -> {
+                                        Text("FIND_BLACK")
                                         GameInit(selectedPuzzle!!)
-                                        Text("COLOR_INIT")
                                         currentProcessor = findBlackAndHandProcessor
                                     }
 
                                     GameState.PLAYING -> {
-                                        gameState = GameState.FINISHED
+                                        Text("PLAYING")
+                                        //gameState = GameState.FINISHED
                                         currentProcessor = rawImageProcessor
                                     }
 
                                     GameState.FINISHED -> {
-                                        gameState = GameState.STARTING
+                                        Text("FINISHED")
+                                        //gameState = GameState.STARTING
                                     }
                                 }
                                 Column(
@@ -195,12 +201,10 @@ class GameActivity : ComponentActivity() {
                                                 this@GameActivity,
                                                 this@GameActivity
                                             )
-                                        },
-                                        rectangle = puzzleRect,
-                                        bitmap = processedBitmap
+                                        }, rectangle = puzzleRect, bitmap = processedBitmap
                                     )
 
-                                    if(gameState == GameState.FIND_BLACK) {
+                                    if (gameState == GameState.FIND_BLACK) {
                                         DisplayProcessedBitmap(processedBitmap)
                                     }
                                     //DisplayProcessedBitmap(processedBitmap)
@@ -220,11 +224,9 @@ class GameActivity : ComponentActivity() {
                                             activity.finish()
                                         }, text = "Mérés befejezése"
                                     )
-
                                 }
                             }
                         }
-
                     }
                 }
             }
@@ -247,9 +249,7 @@ class GameActivity : ComponentActivity() {
             }
 
             val analysis = ImageAnalysis.Builder()
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .build()
-                .also {
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build().also {
                     it.setAnalyzer(ContextCompat.getMainExecutor(context)) { imageProxy ->
 
                         val bitmap = currentProcessor.processImageProxyToBitmap(imageProxy)
@@ -264,6 +264,7 @@ class GameActivity : ComponentActivity() {
                                 processedBitmap = result.bitmap
                                 puzzleRect = result.boundingRect
                                 gameState = GameState.FIND_BLACK
+
                             }
                         } else {
                             val result = currentProcessor.process(bitmap, puzzleRect)

@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.ImageFormat
 import android.graphics.Rect
+import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
@@ -21,6 +22,46 @@ data class ProcessedResult(
 
 interface ImageProcessor {
     fun process(bitmap: Bitmap?, rectangle: Rect?): ProcessedResult?
+
+    // Az előző állapot tárolása
+    var lastGridState: Array<Array<String?>>?
+
+    // Az utolsó változatlan állapot időbélyege
+    var lastUnchangedTime: Long
+
+    var isColorCheckDone: Boolean
+
+    fun hasGridStateChanged(newGridState: Array<Array<String?>>): Boolean {
+        if (lastGridState == null) return true
+
+        for (i in newGridState.indices) {
+            for (j in newGridState[i].indices) {
+                if (newGridState[i][j] != lastGridState!![i][j]) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    fun updateState(newGridState: Array<Array<String?>>) {
+        if (hasGridStateChanged(newGridState)) {
+            lastUnchangedTime = SystemClock.elapsedRealtime()
+            lastGridState = newGridState
+            isColorCheckDone = false
+        }
+    }
+
+    /**
+     * Ellenőrzi, hogy egy adott állapot x ideig változatlan-e
+     */
+    fun isStableForDuration(
+        durationMillis: Long,
+        gridState: Array<Array<String?>>
+    ): Boolean {
+        val elapsedMillis = SystemClock.elapsedRealtime() - lastUnchangedTime
+        return elapsedMillis >= durationMillis
+    }
 
     fun cropCenterToSquare(bitmap: Bitmap): Bitmap {
         val width = bitmap.width
@@ -123,12 +164,12 @@ interface ImageProcessor {
 
         val minDistances = distances.mapValues { it.value.minOrNull() ?: Double.MAX_VALUE }
         val closestEntry = minDistances.minByOrNull { it.value }
-        Log.d("ImageProcessor", "Closest color: ${closestEntry?.key}, distance: ${closestEntry?.value}")
+        //Log.d("ImageProcessor", "Closest color: ${closestEntry?.key}, distance: ${closestEntry?.value}")
 
         val threshold = 40.0
 
         if(closestEntry != null){
-            if (((closestEntry.key == "BLACK" && closestEntry.value > threshold * 1.2) || closestEntry.key != "BLACK" && closestEntry.value > threshold)) {
+            if (((closestEntry.key == "BLACK" && closestEntry.value > threshold * 1.1) || closestEntry.key != "BLACK" && closestEntry.value > threshold)) {
                 return null
             }
             return closestEntry.key
@@ -152,10 +193,10 @@ interface ImageProcessor {
         val offsetX = (outerWidth * INWARD_OFFSET_PERCENTAGE / 2).toInt()
         val offsetY = (outerHeight * INWARD_OFFSET_PERCENTAGE / 2).toInt()
 
-        for (i in 0 until 8) {
-            for (j in 0 until 8) {
-                val startX = rectangle.left + (i * outerWidth + (outerWidth - innerWidth) / 2).toInt()
-                val startY = rectangle.top + (j * outerHeight + (outerHeight - innerHeight) / 2).toInt()
+        for (col in 0 until 8) {
+            for (row in 0 until 8) {
+                val startX = rectangle.left + (col * outerWidth + (outerWidth - innerWidth) / 2).toInt()
+                val startY = rectangle.top + (row * outerHeight + (outerHeight - innerHeight) / 2).toInt()
 
                 val fieldRect = Rect(
                     startX + offsetX,
@@ -176,12 +217,9 @@ interface ImageProcessor {
 
                 val averageColor = calculateAverageColor(croppedBitmap)
                 val closestColorName = findClosestColor(averageColor)
-                result[i][j] = closestColorName
+                result[col][row] = closestColorName
             }
         }
-
         return result
     }
-
-
 }
