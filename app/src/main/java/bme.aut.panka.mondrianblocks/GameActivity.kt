@@ -48,6 +48,7 @@ import android.graphics.Rect
 import android.os.SystemClock
 import bme.aut.panka.mondrianblocks.components.DisplayProcessedBitmap
 import bme.aut.panka.mondrianblocks.data.puzzle.Puzzle
+import bme.aut.panka.mondrianblocks.data.puzzle.toFormattedString
 import bme.aut.panka.mondrianblocks.features.processor.GamePlaying
 import bme.aut.panka.mondrianblocks.features.processor.partials.BlueMaskProcessor
 import bme.aut.panka.mondrianblocks.features.processor.partials.FindBlackAndHandProcessor
@@ -56,15 +57,16 @@ import bme.aut.panka.mondrianblocks.features.processor.partials.PuzzleMatchingPr
 import bme.aut.panka.mondrianblocks.features.processor.partials.RawImageProcessor
 
 enum class GameState {
-    // még nincs semmi inicializálva
+    // a játék indítása folyamatban
     STARTING,
 
+    // a színek inicializálása folyamatban
     INITIALISING,
 
-    // a megadott alakzatba belerakta, itt initeljük a színeket
+    // a fekete elemek keresése
     FIND_BLACK,
 
-    // a színek inicializálva, ha a fekete elemek lekerülnek, akkor kezdődik a játék
+    // a játék folyamatban van
     PLAYING,
 
     // a játék véget ért
@@ -106,16 +108,14 @@ class GameActivity : ComponentActivity() {
         }
     }
 
-    val puzzleMatchingProcessor = PuzzleMatchingProcessor(
-        actualPuzzle = actualPuzzle,
+    val puzzleMatchingProcessor = PuzzleMatchingProcessor(actualPuzzle = actualPuzzle,
         updateActualPuzzle = { newPuzzle -> actualPuzzle = newPuzzle },
         getPlayingStartTime = { playingStartTime }, // Lambda függvényt adunk át
         onGameFinished = {
             runOnUiThread {
                 gameState = GameState.FINISHED
             }
-        }
-    )
+        })
 
     private var currentProcessor: ImageProcessor = blueMaskProcessor
 
@@ -191,7 +191,10 @@ class GameActivity : ComponentActivity() {
                                     }
 
                                     GameState.PLAYING -> {
-                                        GamePlaying(actualPuzzle!!, SystemClock.elapsedRealtime() - playingStartTime!!)
+                                        GamePlaying(
+                                            actualPuzzle!!,
+                                            SystemClock.elapsedRealtime() - playingStartTime!!
+                                        )
                                         currentProcessor = puzzleMatchingProcessor
                                     }
 
@@ -216,11 +219,9 @@ class GameActivity : ComponentActivity() {
                                         }, rectangle = puzzleRect, bitmap = processedBitmap
                                     )
 
-                                    if (gameState == GameState.FIND_BLACK) {
-                                        DisplayProcessedBitmap(processedBitmap)
-                                    }
-                                    //DisplayProcessedBitmap(processedBitmap)
-
+                                    //if (gameState == GameState.FIND_BLACK) {
+                                    //    DisplayProcessedBitmap(processedBitmap)
+                                    //}
                                     if (gameState == GameState.STARTING || gameState == GameState.INITIALISING) {
                                         MondrianButton(
                                             onClick = {
