@@ -2,6 +2,7 @@ package bme.aut.panka.mondrianblocks.features.processor.partials
 
 import android.graphics.Bitmap
 import android.graphics.Rect
+import android.os.SystemClock
 import org.opencv.android.Utils
 import org.opencv.core.Core
 import org.opencv.core.Mat
@@ -11,6 +12,9 @@ import org.opencv.imgproc.Imgproc
 
 class BlueMaskProcessor : ImageProcessor {
     var onImageProcessed: ((ProcessedResult) -> Unit)? = null
+    override var lastGridState: Array<Array<String?>>? = null
+    override var lastUnchangedTime: Long = SystemClock.elapsedRealtime()
+    override var isColorCheckDone: Boolean = false
 
     override fun process(bitmap: Bitmap?, rectangle: Rect?): ProcessedResult? {
         bitmap?.let {

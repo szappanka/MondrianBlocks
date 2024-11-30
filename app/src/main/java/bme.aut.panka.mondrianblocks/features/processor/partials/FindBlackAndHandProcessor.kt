@@ -2,15 +2,18 @@ package bme.aut.panka.mondrianblocks.features.processor.partials
 
 import android.graphics.Bitmap
 import android.graphics.Rect
+import android.os.SystemClock
 import android.util.Log
-import androidx.compose.ui.graphics.toArgb
-import bme.aut.panka.mondrianblocks.GameData.INWARD_OFFSET_PERCENTAGE
-import bme.aut.panka.mondrianblocks.ui.theme.MondrianGray
-import bme.aut.panka.mondrianblocks.ui.theme.blockColors
+import bme.aut.panka.mondrianblocks.GameData
 import org.opencv.android.Utils
 import org.opencv.core.Mat
 
 class FindBlackAndHandProcessor : ImageProcessor {
+
+    override var lastGridState: Array<Array<String?>>? = null
+    override var lastUnchangedTime: Long = SystemClock.elapsedRealtime()
+    override var isColorCheckDone: Boolean = false
+    var onAllBlackPlaced: () -> Unit = {}
 
     override fun process(
         bitmap: Bitmap?,
@@ -24,44 +27,26 @@ class FindBlackAndHandProcessor : ImageProcessor {
             val canvas = android.graphics.Canvas(resultBitmap)
             val paint = android.graphics.Paint()
 
-            val outerWidth = rectangle?.width()!! / 8
-            val outerHeight = rectangle.height() / 8
+            val gridColors = processGridColors(
+                it,
+                rectangle ?: return null
+            ) { color -> findClosestColorBGR(color) }
 
-            val innerWidth = (outerWidth * (1 - INWARD_OFFSET_PERCENTAGE)).toInt()
-            val innerHeight = (outerHeight * (1 - INWARD_OFFSET_PERCENTAGE)).toInt()
+            updateState(gridColors)
 
-            val offsetX = (outerWidth * INWARD_OFFSET_PERCENTAGE / 2).toInt()
-            val offsetY = (outerHeight * INWARD_OFFSET_PERCENTAGE / 2).toInt()
-
+            /*
             for (i in 0 until 8) {
                 for (j in 0 until 8) {
-                    val startX = rectangle.left + (i * outerWidth + (outerWidth - innerWidth) / 2).toInt()
-                    val startY = rectangle.top + (j * outerHeight + (outerHeight - innerHeight) / 2).toInt()
-
-                    val fieldRect = Rect(
-                        startX + offsetX,
-                        startY + offsetY,
-                        startX + offsetX + innerWidth,
-                        startY + offsetY + innerHeight
-                    )
-
-                    val color = calculateAverageColor(
-                        cropCenterToSquare(
-                            Bitmap.createBitmap(
-                                it,
-                                fieldRect.left,
-                                fieldRect.top,
-                                fieldRect.width(),
-                                fieldRect.height()
-                            )
-                        )
-                    )
-
-                    val closestColorName = findClosestColorBGR(color)
-
-                    val blockColor = blockColors[closestColorName?.uppercase()]?.toArgb()
+                    val colorName = gridColors[i][j]
+                    val blockColor = blockColors[colorName?.uppercase()]?.toArgb()
                         ?: MondrianGray.toArgb()
 
+                    val fieldRect = Rect(
+                        rectangle.left + i * (rectangle.width() / 8),
+                        rectangle.top + j * (rectangle.height() / 8),
+                        rectangle.left + (i + 1) * (rectangle.width() / 8),
+                        rectangle.top + (j + 1) * (rectangle.height() / 8)
+                    )
                     paint.color = blockColor
                     paint.style = android.graphics.Paint.Style.FILL
                     canvas.drawRect(
@@ -73,8 +58,59 @@ class FindBlackAndHandProcessor : ImageProcessor {
                     )
                 }
             }
+
+
+             */
+            if (isStableForDuration(
+                    durationMillis = 2000,
+                    gridState = gridColors
+                ) && !isColorCheckDone
+            ) {
+                if (
+                    gridColors.flatten().count { it == "BLACK" } == 6) {
+                    if (checkStarterPuzzleMatch(gridColors)) {
+                        onAllBlackPlaced()
+                    }
+                }
+            }
             return ProcessedResult(bitmap = resultBitmap, boundingRect = rectangle)
         }
         return null
     }
+}
+
+private fun checkStarterPuzzleMatch(gridState: Array<Array<String?>>): Boolean {
+    val puzzle = GameData.selectedPuzzle ?: return false
+
+    val blackCoordinates = mutableSetOf<Pair<Int, Int>>()
+    for (blackBlock in puzzle.blackBlocks) {
+        for (xOffset in 0 until blackBlock.block.width) {
+            for (yOffset in 0 until blackBlock.block.height) {
+                val x = blackBlock.x + xOffset
+                val y = blackBlock.y + yOffset
+                blackCoordinates.add(Pair(x-1, y-1))
+            }
+        }
+    }
+
+    Log.d("Panku", "blackCoordinates: $blackCoordinates")
+    Log.d("Panku", "gridState: ${gridState.mapIndexed { i, row -> row.mapIndexed { j, elem -> "$i, $j: $elem" } }}")
+
+    for (i in gridState.indices) {
+        for (j in gridState[i].indices) {
+            val isBlackRequired = Pair(i, j) in blackCoordinates
+
+            if (isBlackRequired) {
+                if (gridState[i][j] != "BLACK") {
+                    return false
+                }
+            } else {
+                if (gridState[i][j] != null) {
+                    return false
+                }
+            }
+        }
+    }
+
+    return true
 }

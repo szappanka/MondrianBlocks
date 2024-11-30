@@ -7,6 +7,8 @@ import org.opencv.core.Mat
 
 import kotlinx.coroutines.*
 import android.graphics.Rect
+import android.os.SystemClock
+import android.util.Log
 import bme.aut.panka.mondrianblocks.GameData.INWARD_OFFSET_PERCENTAGE
 import bme.aut.panka.mondrianblocks.data.block.MondrianOrientation
 
@@ -16,27 +18,33 @@ import kotlinx.coroutines.sync.withLock
 class InitialisationProcessor : ImageProcessor {
     var onInitProcessed: (() -> Unit)? = null
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
+    override var lastGridState: Array<Array<String?>>? = null
+    override var lastUnchangedTime: Long = SystemClock.elapsedRealtime()
+    override var isColorCheckDone: Boolean = false
 
     val deferredResult = CompletableDeferred<ProcessedResult?>()
 
     private val colorAverages = mutableMapOf<String, MutableList<IntArray>>()
     private var isProcessed = false
-    private val processingMutex = Mutex()  // Add a Mutex to control access
+    private val processingMutex = Mutex()
 
     private var firstFieldRect: Rect? = null
     var newBitmap: Bitmap? = null
 
     override fun process(bitmap: Bitmap?, rectangle: Rect?): ProcessedResult? {
-        // Check if already processed
         if (isProcessed) {
             deferredResult.complete(null)
             return null
         }
 
-        // Only one coroutine can execute this block at a time
+        if (bitmap == null || rectangle == null) {
+            Log.e("InitialisationProcessor", "Bitmap or Rectangle is null")
+            return null
+        }
+
         coroutineScope.launch {
             processingMutex.withLock {
-                if (isProcessed) return@withLock  // Double-check inside the lock
+                if (isProcessed) return@withLock
 
                 bitmap?.let {
                     val mat = Mat()
@@ -51,7 +59,6 @@ class InitialisationProcessor : ImageProcessor {
                     val offsetX = (fieldWidth * INWARD_OFFSET_PERCENTAGE / 2).toInt()
                     val offsetY = (fieldHeight * INWARD_OFFSET_PERCENTAGE / 2).toInt()
 
-                    // Process the blocks in STARTER_PUZZLE
                     (GameData.STARTER_PUZZLE.blocks + GameData.STARTER_PUZZLE.blackBlocks).forEach { puzzleBlock ->
                         val outerIterator =
                             if (puzzleBlock.orientation == MondrianOrientation.HORIZONTAL)
