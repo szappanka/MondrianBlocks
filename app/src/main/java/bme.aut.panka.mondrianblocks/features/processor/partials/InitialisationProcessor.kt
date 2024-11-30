@@ -37,6 +37,11 @@ class InitialisationProcessor : ImageProcessor {
             return null
         }
 
+        if (bitmap == null || rectangle == null) {
+            Log.e("InitialisationProcessor", "Bitmap or Rectangle is null")
+            return null
+        }
+
         coroutineScope.launch {
             processingMutex.withLock {
                 if (isProcessed) return@withLock
