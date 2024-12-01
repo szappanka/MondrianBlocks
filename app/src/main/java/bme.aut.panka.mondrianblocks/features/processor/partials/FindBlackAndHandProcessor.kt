@@ -1,27 +1,61 @@
 package bme.aut.panka.mondrianblocks.features.processor.partials
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.PointF
 import android.graphics.Rect
 import android.os.SystemClock
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import bme.aut.panka.mondrianblocks.GameData
+import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import org.opencv.android.Utils
 import org.opencv.core.Mat
 
-class FindBlackAndHandProcessor : ImageProcessor {
+class FindBlackAndHandProcessor(val context: Context) : ImageProcessor {
 
     override var lastGridState: Array<Array<String?>>? = null
     override var lastUnchangedTime: Long = SystemClock.elapsedRealtime()
     override var isColorCheckDone: Boolean = false
     var onAllBlackPlaced: () -> Unit = {}
 
+    var landmarks = mutableStateOf<List<List<PointF>>?>(null)
+
+    val handRecognizer = HandRecognizer(context)
+
     override fun process(
         bitmap: Bitmap?,
         rectangle: Rect?
     ): ProcessedResult? {
+        var processedBitmap = bitmap
+        var detectedLandmarks: List<List<PointF>>? = null
+
         bitmap?.let {
             val mat = Mat()
             Utils.bitmapToMat(it, mat)
+
+//            val result = handRecognizer.recognizeImage(bitmap)
+//            result?.let { recognizerResult ->
+//                val landmarks: List<List<NormalizedLandmark>> = recognizerResult.landmarks()
+//                if (landmarks.isNotEmpty()) {
+//                    Log.d("Hand", "Hand found")
+//
+//                    // Konvertálás PointF-re
+//                    val androidLandmarks: List<List<PointF>> = landmarks.map { hand ->
+//                        hand.map { landmark ->
+//                            PointF(
+//                                landmark.x() * bitmap.width, // Skálázás a bitmap szélességére
+//                                landmark.y() * bitmap.height // Skálázás a bitmap magasságára
+//                            )
+//                        }
+//                    }
+//
+//                    // Landmarkok kirajzolása
+//                    processedBitmap = handRecognizer.drawLandmarksOnBitmap(bitmap, androidLandmarks)
+//                }
+//            }
+
+            detectedLandmarks = detectAndReturnLandmarks(bitmap, handRecognizer)
 
             val resultBitmap = Bitmap.createBitmap(it.width, it.height, Bitmap.Config.ARGB_8888)
             val canvas = android.graphics.Canvas(resultBitmap)
@@ -61,6 +95,7 @@ class FindBlackAndHandProcessor : ImageProcessor {
 
 
              */
+
             if (isStableForDuration(
                     durationMillis = 2000,
                     gridState = gridColors
@@ -72,8 +107,9 @@ class FindBlackAndHandProcessor : ImageProcessor {
                         onAllBlackPlaced()
                     }
                 }
+                isColorCheckDone = true
             }
-            return ProcessedResult(bitmap = resultBitmap, boundingRect = rectangle)
+            return ProcessedResult(bitmap = processedBitmap, boundingRect = rectangle, landmarks = detectedLandmarks)
         }
         return null
     }
@@ -92,9 +128,6 @@ private fun checkStarterPuzzleMatch(gridState: Array<Array<String?>>): Boolean {
             }
         }
     }
-
-    Log.d("Panku", "blackCoordinates: $blackCoordinates")
-    Log.d("Panku", "gridState: ${gridState.mapIndexed { i, row -> row.mapIndexed { j, elem -> "$i, $j: $elem" } }}")
 
     for (i in gridState.indices) {
         for (j in gridState[i].indices) {
