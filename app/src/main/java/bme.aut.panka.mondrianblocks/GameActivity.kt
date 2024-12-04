@@ -44,12 +44,11 @@ import bme.aut.panka.mondrianblocks.ui.theme.MondrianBlocksTheme
 import bme.aut.panka.mondrianblocks.ui.theme.yellow
 import org.opencv.android.OpenCVLoader
 import android.graphics.Bitmap
+import android.graphics.PointF
 import android.graphics.Rect
 import android.os.SystemClock
 import androidx.activity.result.contract.ActivityResultContracts
-import bme.aut.panka.mondrianblocks.components.DisplayProcessedBitmap
 import bme.aut.panka.mondrianblocks.data.puzzle.Puzzle
-import bme.aut.panka.mondrianblocks.data.puzzle.toFormattedString
 import bme.aut.panka.mondrianblocks.features.processor.GamePlaying
 import bme.aut.panka.mondrianblocks.features.processor.partials.BlueMaskProcessor
 import bme.aut.panka.mondrianblocks.features.processor.partials.FindBlackAndHandProcessor
@@ -79,6 +78,7 @@ class GameActivity : ComponentActivity() {
     private var gameState by mutableStateOf(GameState.STARTING)
     private var processedBitmap by mutableStateOf<Bitmap?>(null)
     private var puzzleRect by mutableStateOf<Rect?>(null)
+    private var puzzleLandmarks by mutableStateOf<List<List<PointF>>?>(null)
 
     val selectedUser = GameData.selectedUser
     val selectedPuzzle = GameData.selectedPuzzle
@@ -91,42 +91,22 @@ class GameActivity : ComponentActivity() {
         if (isGranted) {
             setupContent()
         } else {
-            showPermissionRequestScreen() // Javítottam ezt, hogy kezelje, ha az engedély elutasításra kerül
+            showPermissionRequestScreen()
         }
     }
 
 
     val rawImageProcessor = RawImageProcessor()
-    val blueMaskProcessor = BlueMaskProcessor().apply {
+
+    private lateinit var findBlackAndHandProcessor: FindBlackAndHandProcessor
+    private var blueMaskProcessor: BlueMaskProcessor = BlueMaskProcessor().apply {
         onImageProcessed = { result ->
             processedBitmap = result.bitmap
             puzzleRect = result.boundingRect
         }
     }
-    val initProcessor = InitialisationProcessor().apply {
-        onInitProcessed = {
-            runOnUiThread {
-                gameState = GameState.FIND_BLACK
-            }
-        }
-    }
-    val findBlackAndHandProcessor = FindBlackAndHandProcessor().apply {
-        onAllBlackPlaced = {
-            runOnUiThread {
-                playingStartTime = SystemClock.elapsedRealtime()
-                gameState = GameState.PLAYING
-            }
-        }
-    }
-
-    val puzzleMatchingProcessor = PuzzleMatchingProcessor(actualPuzzle = actualPuzzle,
-        updateActualPuzzle = { newPuzzle -> actualPuzzle = newPuzzle },
-        getPlayingStartTime = { playingStartTime }, // Lambda függvényt adunk át
-        onGameFinished = {
-            runOnUiThread {
-                gameState = GameState.FINISHED
-            }
-        })
+    private lateinit var initProcessor: InitialisationProcessor
+    private lateinit var puzzleMatchingProcessor: PuzzleMatchingProcessor
 
     private var currentProcessor: ImageProcessor = blueMaskProcessor
 
@@ -134,13 +114,18 @@ class GameActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        initProcessors()
+
         if (OpenCVLoader.initLocal()) {
             Log.i("OpenCV", "OpenCV successfully loaded.")
         }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this, Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             requestPermissionLauncher.launch(Manifest.permission.CAMERA)
-            showPermissionRequestScreen()  // Megjeleníti a jogosultságkérés képernyőt
+            showPermissionRequestScreen()
         } else {
             setupContent()
         }
@@ -177,7 +162,14 @@ class GameActivity : ComponentActivity() {
                                 processedBitmap = result.bitmap
                                 puzzleRect = result.boundingRect
                                 gameState = GameState.FIND_BLACK
-
+                            }
+                        } else if (gameState == GameState.FIND_BLACK) {
+                            val result = currentProcessor.process(bitmap, puzzleRect)
+                            if (result != null) {
+                                processedBitmap = result.bitmap
+                                puzzleRect = result.boundingRect
+                                puzzleLandmarks = result.landmarks
+                                Log.d("Panku", "Landmarks: $puzzleLandmarks")
                             }
                         } else {
                             val result = currentProcessor.process(bitmap, puzzleRect)
@@ -209,15 +201,6 @@ class GameActivity : ComponentActivity() {
         initProcessor.cleanup()
     }
 
-    private fun getPermission() {
-        if (ContextCompat.checkSelfPermission(
-                this, Manifest.permission.CAMERA
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(arrayOf(Manifest.permission.CAMERA), 1)
-        }
-    }
-
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     private fun showPermissionRequestScreen() {
         setContent {
@@ -236,9 +219,7 @@ class GameActivity : ComponentActivity() {
                         Text(
                             text = "Kérjük, engedélyezze a kamera hozzáférést a továbbiakban.",
                             style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
+                                color = Color.Black, fontSize = 18.sp, fontWeight = FontWeight.Bold
                             )
                         )
                     }
@@ -265,16 +246,12 @@ class GameActivity : ComponentActivity() {
                         Spacer(modifier = Modifier.fillMaxHeight(0.1f))
                         Text(
                             text = "Játék", style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 30.sp,
-                                fontWeight = FontWeight.Bold
+                                color = Color.Black, fontSize = 30.sp, fontWeight = FontWeight.Bold
                             )
                         )
                         Text(
                             "Felhasználó: ${selectedUser?.name}", style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold
+                                color = Color.Black, fontSize = 15.sp, fontWeight = FontWeight.Bold
                             )
                         )
 
@@ -328,12 +305,17 @@ class GameActivity : ComponentActivity() {
                                             this@GameActivity,
                                             this@GameActivity
                                         )
-                                    }, rectangle = puzzleRect, bitmap = processedBitmap
+                                    },
+                                    rectangle = puzzleRect,
+                                    bitmap = processedBitmap,
+                                    landmarks = puzzleLandmarks
                                 )
 
-                                //if (gameState == GameState.FIND_BLACK) {
-                                //    DisplayProcessedBitmap(processedBitmap)
-                                //}
+
+//                                if (gameState == GameState.FIND_BLACK) {
+//                                    DisplayProcessedBitmap(processedBitmap)
+//                                }
+
                                 if (gameState == GameState.STARTING || gameState == GameState.INITIALISING) {
                                     MondrianButton(
                                         onClick = {
@@ -356,6 +338,35 @@ class GameActivity : ComponentActivity() {
                 }
             }
         }
+    }
 
+    private fun initProcessors() {
+        initProcessor = InitialisationProcessor().apply {
+            onInitProcessed = {
+                runOnUiThread {
+                    gameState = GameState.FIND_BLACK
+                }
+            }
+        }
+
+        findBlackAndHandProcessor = FindBlackAndHandProcessor(this@GameActivity).apply {
+            onAllBlackPlaced = {
+                runOnUiThread {
+                    playingStartTime = SystemClock.elapsedRealtime()
+                    gameState = GameState.PLAYING
+                }
+            }
+        }
+
+        puzzleMatchingProcessor = PuzzleMatchingProcessor(actualPuzzle = actualPuzzle,
+            updateActualPuzzle = { newPuzzle -> actualPuzzle = newPuzzle },
+            getPlayingStartTime = { playingStartTime },
+            onGameFinished = {
+                runOnUiThread {
+                    gameState = GameState.FINISHED
+                }
+            },
+            context = this@GameActivity
+        )
     }
 }

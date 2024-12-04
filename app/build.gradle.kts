@@ -117,4 +117,8 @@ dependencies {
 
     // coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // mediapipe task implementation com.google.mediapipe:task-vision
+    implementation("com.google.mediapipe:tasks-vision:0.10.14")
+    //implementation 'com.google.mediapipe:mediapipe-framework
 }

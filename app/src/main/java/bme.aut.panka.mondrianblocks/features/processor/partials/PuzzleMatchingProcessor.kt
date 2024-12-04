@@ -1,6 +1,8 @@
 package bme.aut.panka.mondrianblocks.features.processor.partials
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.PointF
 import android.graphics.Rect
 import android.os.SystemClock
 import android.util.Log
@@ -14,15 +16,23 @@ class PuzzleMatchingProcessor(
     private val updateActualPuzzle: (Puzzle) -> Unit,
     private val onGameFinished: () -> Unit,
     private val getPlayingStartTime: () -> Long?,
+    val context: Context
 ) : ImageProcessor {
     override var lastGridState: Array<Array<String?>>? = null
     override var lastUnchangedTime: Long = SystemClock.elapsedRealtime()
     override var isColorCheckDone: Boolean = false
 
+    val handRecognizer = HandRecognizer(context)
+
     override fun process(bitmap: Bitmap?, rectangle: Rect?): ProcessedResult? {
+        var detectedLandmarks: List<List<PointF>>? = null
         bitmap?.let {
             val mat = Mat()
             Utils.bitmapToMat(it, mat)
+
+            detectedLandmarks = detectAndReturnLandmarks(bitmap, handRecognizer)
+
+            val isHandDetected = !detectedLandmarks.isNullOrEmpty()
 
             val resultBitmap = Bitmap.createBitmap(it.width, it.height, Bitmap.Config.ARGB_8888)
             val gridColors = processGridColors(
@@ -30,11 +40,12 @@ class PuzzleMatchingProcessor(
                 rectangle ?: return null
             ) { color -> findClosestColorBGR(color) }
 
-            updateState(gridColors)
+            updateState(gridColors, isHandDetected)
 
             if (isStableForDuration(
                     durationMillis = 1000,
-                    gridState = gridColors
+                    gridState = gridColors,
+                    isHandDetected = isHandDetected
                 ) && !isColorCheckDone
             ) {
                 val newPuzzle = recognizePuzzle(gridColors)

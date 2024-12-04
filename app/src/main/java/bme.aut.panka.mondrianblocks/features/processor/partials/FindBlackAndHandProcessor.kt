@@ -1,69 +1,52 @@
 package bme.aut.panka.mondrianblocks.features.processor.partials
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.PointF
 import android.graphics.Rect
 import android.os.SystemClock
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import bme.aut.panka.mondrianblocks.GameData
+import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import org.opencv.android.Utils
 import org.opencv.core.Mat
 
-class FindBlackAndHandProcessor : ImageProcessor {
+class FindBlackAndHandProcessor(val context: Context) : ImageProcessor {
 
     override var lastGridState: Array<Array<String?>>? = null
     override var lastUnchangedTime: Long = SystemClock.elapsedRealtime()
     override var isColorCheckDone: Boolean = false
     var onAllBlackPlaced: () -> Unit = {}
 
+    val handRecognizer = HandRecognizer(context)
+
     override fun process(
         bitmap: Bitmap?,
         rectangle: Rect?
     ): ProcessedResult? {
+        var processedBitmap = bitmap
+        var detectedLandmarks: List<List<PointF>>? = null
+
         bitmap?.let {
             val mat = Mat()
             Utils.bitmapToMat(it, mat)
 
-            val resultBitmap = Bitmap.createBitmap(it.width, it.height, Bitmap.Config.ARGB_8888)
-            val canvas = android.graphics.Canvas(resultBitmap)
-            val paint = android.graphics.Paint()
+            detectedLandmarks = detectAndReturnLandmarks(bitmap, handRecognizer)
+
+            val isHandDetected = !detectedLandmarks.isNullOrEmpty()
 
             val gridColors = processGridColors(
                 it,
                 rectangle ?: return null
             ) { color -> findClosestColorBGR(color) }
 
-            updateState(gridColors)
+            updateState(gridColors, isHandDetected)
 
-            /*
-            for (i in 0 until 8) {
-                for (j in 0 until 8) {
-                    val colorName = gridColors[i][j]
-                    val blockColor = blockColors[colorName?.uppercase()]?.toArgb()
-                        ?: MondrianGray.toArgb()
-
-                    val fieldRect = Rect(
-                        rectangle.left + i * (rectangle.width() / 8),
-                        rectangle.top + j * (rectangle.height() / 8),
-                        rectangle.left + (i + 1) * (rectangle.width() / 8),
-                        rectangle.top + (j + 1) * (rectangle.height() / 8)
-                    )
-                    paint.color = blockColor
-                    paint.style = android.graphics.Paint.Style.FILL
-                    canvas.drawRect(
-                        fieldRect.left.toFloat(),
-                        fieldRect.top.toFloat(),
-                        fieldRect.right.toFloat(),
-                        fieldRect.bottom.toFloat(),
-                        paint
-                    )
-                }
-            }
-
-
-             */
             if (isStableForDuration(
                     durationMillis = 2000,
-                    gridState = gridColors
+                    gridState = gridColors,
+                    isHandDetected = isHandDetected
                 ) && !isColorCheckDone
             ) {
                 if (
@@ -72,8 +55,9 @@ class FindBlackAndHandProcessor : ImageProcessor {
                         onAllBlackPlaced()
                     }
                 }
+                isColorCheckDone = true
             }
-            return ProcessedResult(bitmap = resultBitmap, boundingRect = rectangle)
+            return ProcessedResult(bitmap = processedBitmap, boundingRect = rectangle, landmarks = detectedLandmarks)
         }
         return null
     }
@@ -92,9 +76,6 @@ private fun checkStarterPuzzleMatch(gridState: Array<Array<String?>>): Boolean {
             }
         }
     }
-
-    Log.d("Panku", "blackCoordinates: $blackCoordinates")
-    Log.d("Panku", "gridState: ${gridState.mapIndexed { i, row -> row.mapIndexed { j, elem -> "$i, $j: $elem" } }}")
 
     for (i in gridState.indices) {
         for (j in gridState[i].indices) {

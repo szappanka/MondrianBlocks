@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.ImageFormat
+import android.graphics.PointF
 import android.graphics.Rect
 import android.os.SystemClock
 import android.util.Log
@@ -12,12 +13,14 @@ import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import bme.aut.panka.mondrianblocks.GameData.INWARD_OFFSET_PERCENTAGE
 import bme.aut.panka.mondrianblocks.GameData.initializedColors
+import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import kotlinx.coroutines.CoroutineScope
 import kotlin.math.sqrt
 
 data class ProcessedResult(
     val bitmap: Bitmap?,
-    val boundingRect: Rect? = null
+    val boundingRect: Rect? = null,
+    val landmarks: List<List<PointF>>? = null
 )
 
 interface ImageProcessor {
@@ -44,21 +47,34 @@ interface ImageProcessor {
         return false
     }
 
-    fun updateState(newGridState: Array<Array<String?>>) {
-        if (hasGridStateChanged(newGridState)) {
+    fun updateState(
+        newGridState: Array<Array<String?>>,
+        isHandDetected: Boolean
+    ) {
+        if (isHandDetected) {
+            // Ha van kéz, akkor az állapotot nem frissítjük
+            lastUnchangedTime = SystemClock.elapsedRealtime()
+        } else if (hasGridStateChanged(newGridState)) {
+            // Ha nincs kéz és változik a rács állapota, frissítjük az időt
             lastUnchangedTime = SystemClock.elapsedRealtime()
             lastGridState = newGridState
             isColorCheckDone = false
         }
     }
 
+
     /**
      * Ellenőrzi, hogy egy adott állapot x ideig változatlan-e
      */
     fun isStableForDuration(
         durationMillis: Long,
-        gridState: Array<Array<String?>>
+        gridState: Array<Array<String?>>,
+        isHandDetected: Boolean
     ): Boolean {
+        if (isHandDetected) {
+            // Ha kéz van a képen, az állapot nem stabil
+            return false
+        }
         val elapsedMillis = SystemClock.elapsedRealtime() - lastUnchangedTime
         return elapsedMillis >= durationMillis
     }
@@ -222,4 +238,27 @@ interface ImageProcessor {
         }
         return result
     }
+
+
+    fun detectAndReturnLandmarks(bitmap: Bitmap?, handRecognizer: HandRecognizer): List<List<PointF>>? {
+        bitmap?.let {
+            val result = handRecognizer.recognizeImage(bitmap)
+            result?.let { recognizerResult ->
+                val landmarks: List<List<NormalizedLandmark>> = recognizerResult.landmarks()
+                if (landmarks.isNotEmpty()) {
+                    Log.d("Hand", "Hand found")
+                    return landmarks.map { hand ->
+                        hand.map { landmark ->
+                            PointF(
+                                landmark.x() * bitmap.width,
+                                landmark.y() * bitmap.height
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        return null
+    }
+
 }

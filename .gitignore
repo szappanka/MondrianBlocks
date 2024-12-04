@@ -1,4 +1,4 @@
-*.iml
+
 .gradle
 /local.properties
 /.idea/caches
@@ -15,3 +15,5 @@
 local.properties
 
 /openCV
+
+*.task
