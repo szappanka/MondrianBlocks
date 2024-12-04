@@ -48,9 +48,7 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.os.SystemClock
 import androidx.activity.result.contract.ActivityResultContracts
-import bme.aut.panka.mondrianblocks.components.DisplayProcessedBitmap
 import bme.aut.panka.mondrianblocks.data.puzzle.Puzzle
-import bme.aut.panka.mondrianblocks.data.puzzle.toFormattedString
 import bme.aut.panka.mondrianblocks.features.processor.GamePlaying
 import bme.aut.panka.mondrianblocks.features.processor.partials.BlueMaskProcessor
 import bme.aut.panka.mondrianblocks.features.processor.partials.FindBlackAndHandProcessor
@@ -108,15 +106,7 @@ class GameActivity : ComponentActivity() {
         }
     }
     private lateinit var initProcessor: InitialisationProcessor
-
-    val puzzleMatchingProcessor = PuzzleMatchingProcessor(actualPuzzle = actualPuzzle,
-        updateActualPuzzle = { newPuzzle -> actualPuzzle = newPuzzle },
-        getPlayingStartTime = { playingStartTime },
-        onGameFinished = {
-            runOnUiThread {
-                gameState = GameState.FINISHED
-            }
-        })
+    private lateinit var puzzleMatchingProcessor: PuzzleMatchingProcessor
 
     private var currentProcessor: ImageProcessor = blueMaskProcessor
 
@@ -131,8 +121,7 @@ class GameActivity : ComponentActivity() {
         }
 
         if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.CAMERA
+                this, Manifest.permission.CAMERA
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             requestPermissionLauncher.launch(Manifest.permission.CAMERA)
@@ -230,9 +219,7 @@ class GameActivity : ComponentActivity() {
                         Text(
                             text = "Kérjük, engedélyezze a kamera hozzáférést a továbbiakban.",
                             style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
+                                color = Color.Black, fontSize = 18.sp, fontWeight = FontWeight.Bold
                             )
                         )
                     }
@@ -259,16 +246,12 @@ class GameActivity : ComponentActivity() {
                         Spacer(modifier = Modifier.fillMaxHeight(0.1f))
                         Text(
                             text = "Játék", style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 30.sp,
-                                fontWeight = FontWeight.Bold
+                                color = Color.Black, fontSize = 30.sp, fontWeight = FontWeight.Bold
                             )
                         )
                         Text(
                             "Felhasználó: ${selectedUser?.name}", style = TextStyle(
-                                color = Color.Black,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold
+                                color = Color.Black, fontSize = 15.sp, fontWeight = FontWeight.Bold
                             )
                         )
 
@@ -355,7 +338,6 @@ class GameActivity : ComponentActivity() {
                 }
             }
         }
-
     }
 
     private fun initProcessors() {
@@ -375,5 +357,16 @@ class GameActivity : ComponentActivity() {
                 }
             }
         }
+
+        puzzleMatchingProcessor = PuzzleMatchingProcessor(actualPuzzle = actualPuzzle,
+            updateActualPuzzle = { newPuzzle -> actualPuzzle = newPuzzle },
+            getPlayingStartTime = { playingStartTime },
+            onGameFinished = {
+                runOnUiThread {
+                    gameState = GameState.FINISHED
+                }
+            },
+            context = this@GameActivity
+        )
     }
 }

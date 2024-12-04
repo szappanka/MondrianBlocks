@@ -19,8 +19,6 @@ class FindBlackAndHandProcessor(val context: Context) : ImageProcessor {
     override var isColorCheckDone: Boolean = false
     var onAllBlackPlaced: () -> Unit = {}
 
-    var landmarks = mutableStateOf<List<List<PointF>>?>(null)
-
     val handRecognizer = HandRecognizer(context)
 
     override fun process(
@@ -34,71 +32,21 @@ class FindBlackAndHandProcessor(val context: Context) : ImageProcessor {
             val mat = Mat()
             Utils.bitmapToMat(it, mat)
 
-//            val result = handRecognizer.recognizeImage(bitmap)
-//            result?.let { recognizerResult ->
-//                val landmarks: List<List<NormalizedLandmark>> = recognizerResult.landmarks()
-//                if (landmarks.isNotEmpty()) {
-//                    Log.d("Hand", "Hand found")
-//
-//                    // Konvertálás PointF-re
-//                    val androidLandmarks: List<List<PointF>> = landmarks.map { hand ->
-//                        hand.map { landmark ->
-//                            PointF(
-//                                landmark.x() * bitmap.width, // Skálázás a bitmap szélességére
-//                                landmark.y() * bitmap.height // Skálázás a bitmap magasságára
-//                            )
-//                        }
-//                    }
-//
-//                    // Landmarkok kirajzolása
-//                    processedBitmap = handRecognizer.drawLandmarksOnBitmap(bitmap, androidLandmarks)
-//                }
-//            }
-
             detectedLandmarks = detectAndReturnLandmarks(bitmap, handRecognizer)
 
-            val resultBitmap = Bitmap.createBitmap(it.width, it.height, Bitmap.Config.ARGB_8888)
-            val canvas = android.graphics.Canvas(resultBitmap)
-            val paint = android.graphics.Paint()
+            val isHandDetected = !detectedLandmarks.isNullOrEmpty()
 
             val gridColors = processGridColors(
                 it,
                 rectangle ?: return null
             ) { color -> findClosestColorBGR(color) }
 
-            updateState(gridColors)
-
-            /*
-            for (i in 0 until 8) {
-                for (j in 0 until 8) {
-                    val colorName = gridColors[i][j]
-                    val blockColor = blockColors[colorName?.uppercase()]?.toArgb()
-                        ?: MondrianGray.toArgb()
-
-                    val fieldRect = Rect(
-                        rectangle.left + i * (rectangle.width() / 8),
-                        rectangle.top + j * (rectangle.height() / 8),
-                        rectangle.left + (i + 1) * (rectangle.width() / 8),
-                        rectangle.top + (j + 1) * (rectangle.height() / 8)
-                    )
-                    paint.color = blockColor
-                    paint.style = android.graphics.Paint.Style.FILL
-                    canvas.drawRect(
-                        fieldRect.left.toFloat(),
-                        fieldRect.top.toFloat(),
-                        fieldRect.right.toFloat(),
-                        fieldRect.bottom.toFloat(),
-                        paint
-                    )
-                }
-            }
-
-
-             */
+            updateState(gridColors, isHandDetected)
 
             if (isStableForDuration(
                     durationMillis = 2000,
-                    gridState = gridColors
+                    gridState = gridColors,
+                    isHandDetected = isHandDetected
                 ) && !isColorCheckDone
             ) {
                 if (

@@ -47,21 +47,34 @@ interface ImageProcessor {
         return false
     }
 
-    fun updateState(newGridState: Array<Array<String?>>) {
-        if (hasGridStateChanged(newGridState)) {
+    fun updateState(
+        newGridState: Array<Array<String?>>,
+        isHandDetected: Boolean
+    ) {
+        if (isHandDetected) {
+            // Ha van kéz, akkor az állapotot nem frissítjük
+            lastUnchangedTime = SystemClock.elapsedRealtime()
+        } else if (hasGridStateChanged(newGridState)) {
+            // Ha nincs kéz és változik a rács állapota, frissítjük az időt
             lastUnchangedTime = SystemClock.elapsedRealtime()
             lastGridState = newGridState
             isColorCheckDone = false
         }
     }
 
+
     /**
      * Ellenőrzi, hogy egy adott állapot x ideig változatlan-e
      */
     fun isStableForDuration(
         durationMillis: Long,
-        gridState: Array<Array<String?>>
+        gridState: Array<Array<String?>>,
+        isHandDetected: Boolean
     ): Boolean {
+        if (isHandDetected) {
+            // Ha kéz van a képen, az állapot nem stabil
+            return false
+        }
         val elapsedMillis = SystemClock.elapsedRealtime() - lastUnchangedTime
         return elapsedMillis >= durationMillis
     }
