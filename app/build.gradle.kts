@@ -18,8 +18,10 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders["appAuthRedirectScheme"] = "bme.aut.panka.mondrianblocks"
+
     }
 
     buildTypes {
@@ -121,4 +123,7 @@ dependencies {
     // mediapipe task implementation com.google.mediapipe:task-vision
     implementation("com.google.mediapipe:tasks-vision:0.10.14")
     //implementation 'com.google.mediapipe:mediapipe-framework
+
+    // auth2
+    implementation("net.openid:appauth:0.11.1")
 }
