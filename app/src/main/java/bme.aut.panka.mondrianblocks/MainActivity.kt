@@ -33,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import bme.aut.panka.mondrianblocks.components.MondrianButton
 import bme.aut.panka.mondrianblocks.features.menu.difficulty.DifficultyMenuView
 import bme.aut.panka.mondrianblocks.features.menu.difficulty.FixedDifficultyView
 import bme.aut.panka.mondrianblocks.features.menu.difficulty.RandomDifficultyView
@@ -63,8 +62,16 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        handleDeeplink(intent)
         enableEdgeToEdge()
+        val savedToken = loadToken()
+
+        if (savedToken != null) {
+            authCode = savedToken
+            setScreen(ScreenState.COGLICA_USER_MENU)
+        } else {
+            setScreen(ScreenState.MAIN_MENU)
+        }
+
         setContent {
             MondrianBlocksTheme {
                 Scaffold(
@@ -72,109 +79,35 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize(),
                     containerColor = yellow,
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(all = 16.dp)
-                    ) {
-
-                        Image(
-                            painter = painterResource(id = R.drawable.logo),
-                            contentDescription = stringResource(id = R.string.logo),
-                            modifier = Modifier
-                                .padding(top = 100.dp)
-                                .fillMaxWidth(),
-                            alignment = Alignment.Center
-
-                        )
-                        /*
-                        MondrianButton(
-                            onClick = {
-                                Log.d("Panku", "Current screen: ${_currentScreen.value}")
-                            },
-                            text = "Current screen"
-                        )
-
-                         */
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .padding(20.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            when (_currentScreen.value) {
-                                ScreenState.MAIN_MENU -> MainMenuView(onNewGameClick = {
-                                    setScreen(
-                                        ScreenState.USER_MENU
-                                    )
-                                },
-                                    onResultsClick = { setScreen(ScreenState.RESULTS) },
-                                    onExitClick = { this@MainActivity.finish() })
-
-                                ScreenState.USER_MENU -> UserMenuView(
-                                    onNewUserClick = { setScreen(ScreenState.NEW_USER_MENU) },
-                                    onSaveUserClick = { setScreen(ScreenState.SAVED_USER_MENU) },
-                                    onCoglicaUserClick = { setScreen(ScreenState.COGLICA_USER_MENU) },
-                                    onBackClick = { setScreen(ScreenState.MAIN_MENU) },
-                                )
-
-                                ScreenState.NEW_USER_MENU -> NewUserView(
-                                    onNextClick = { setScreen(ScreenState.DIFFICULTY) },
-                                    onBackClick = { setScreen(ScreenState.USER_MENU) },
-                                )
-
-                                ScreenState.SAVED_USER_MENU -> SavedUserView(
-                                    onNextClick = { setScreen(ScreenState.DIFFICULTY) },
-                                    onBackClick = { setScreen(ScreenState.USER_MENU) },
-                                )
-
-                                ScreenState.COGLICA_USER_MENU -> CoglicaUserView(
-                                    authCode = authCode,
-                                    onNextClick = { setScreen(ScreenState.DIFFICULTY) },
-                                    onBackClick = { setScreen(ScreenState.USER_MENU) },
-                                )
-
-                                ScreenState.RESULTS -> ResultsView(
-                                    onBackClick = { setScreen(ScreenState.MAIN_MENU) },
-                                )
-
-                                ScreenState.DIFFICULTY -> DifficultyMenuView(
-                                    onRandomClick = { setScreen(ScreenState.DIFFICULTY_RANDOM) },
-                                    onFixedClick = { setScreen(ScreenState.DIFFICULTY_FIXED) },
-                                    onBackClick = { setScreen(ScreenState.USER_MENU) },
-                                )
-
-                                ScreenState.DIFFICULTY_RANDOM -> RandomDifficultyView(
-                                    onNextClick = { setScreen(ScreenState.GAME) },
-                                    onBackClick = { setScreen(ScreenState.DIFFICULTY) },
-                                )
-
-                                ScreenState.DIFFICULTY_FIXED -> FixedDifficultyView(
-                                    onNextClick = { setScreen(ScreenState.GAME) },
-                                    onBackClick = { setScreen(ScreenState.DIFFICULTY) },
-                                )
-
-                                ScreenState.GAME -> {
-                                    val intent = Intent(this@MainActivity, GameActivity::class.java)
-                                    startActivity(intent)
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(40.dp))
-                    }
+                    MainContent()
                 }
             }
         }
+    }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent) // Important to ensure 'getIntent()' returns the latest intent
+        handleIntent(intent) // Handle the new intent
+    }
 
-        val appLinkIntent: Intent = intent
-        val appLinkAction: String? = appLinkIntent.action
-        val appLinkData: Uri? = appLinkIntent.data
+    private fun handleIntent(intent: Intent) {
+        if (Intent.ACTION_VIEW == intent.action) {
+            intent.data?.let { uri ->
+                handleDeeplink(uri)
+            }
+        }
+    }
 
-        if (appLinkData != null) {
-            Log.d("Panku", "App link data: $appLinkData")
+    private fun handleDeeplink(data: Uri) {
+        val code = data.getQueryParameter("code")
+        if (code != null) {
+            authCode = code
+            shouldResetScreen = false // Prevent onResume from resetting screen
+            setScreen(ScreenState.COGLICA_USER_MENU)
+            Log.d("Panku", "Handled deep link with code: $code")
+        } else {
+            Log.d("Panku", "Deep link did not contain a code")
         }
     }
 
@@ -182,34 +115,113 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         if (shouldResetScreen) {
             setScreen(ScreenState.MAIN_MENU)
-            Log.d("Panku", "OnResume: ${_currentScreen.value}")
+            Log.d("Panku", "Screen reset to main menu")
         } else {
-            shouldResetScreen = true // Visszaállítjuk, hogy a következő alkalommal reseteljen
+            shouldResetScreen = true
         }
     }
 
-    private fun handleDeeplink(intent: Intent) {
-        val data: Uri? = intent.data
-        Log.d("Panku", "Deeplink data: $data")
-        if (data != null) {
-            val code = data.getQueryParameter("code")
-            if (code != null) {
-                authCode = code
-                shouldResetScreen = false // Ne resetelje az onResume
-                setScreen(ScreenState.COGLICA_USER_MENU)
-                Log.d("Panku", "Screen: ${_currentScreen.value}")
-            } else {
-                Log.d("Panku", "No code in deeplink")
+    private fun loadToken(): String? {
+        val sharedPreferences = getSharedPreferences("coglica_prefs", MODE_PRIVATE)
+        return sharedPreferences.getString("access_token", null)
+    }
+
+    private fun clearToken() {
+        val sharedPreferences = getSharedPreferences("coglica_prefs", MODE_PRIVATE)
+        sharedPreferences.edit().remove("access_token").apply()
+    }
+
+    @Composable
+    private fun MainContent() {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = 16.dp)
+        ) {
+
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = stringResource(id = R.string.logo),
+                modifier = Modifier
+                    .padding(top = 100.dp)
+                    .fillMaxWidth(),
+                alignment = Alignment.Center
+
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                when (_currentScreen.value) {
+                    ScreenState.MAIN_MENU -> MainMenuView(onNewGameClick = {
+                        setScreen(
+                            ScreenState.USER_MENU
+                        )
+                    },
+                        onResultsClick = { setScreen(ScreenState.RESULTS) },
+                        onExitClick = {
+                            clearToken()
+                            this@MainActivity.finish()
+                        }
+                    )
+
+                    ScreenState.USER_MENU -> UserMenuView(
+                        onNewUserClick = { setScreen(ScreenState.NEW_USER_MENU) },
+                        onSaveUserClick = { setScreen(ScreenState.SAVED_USER_MENU) },
+                        onCoglicaUserClick = { setScreen(ScreenState.COGLICA_USER_MENU) },
+                        onBackClick = { setScreen(ScreenState.MAIN_MENU) },
+                    )
+
+                    ScreenState.NEW_USER_MENU -> NewUserView(
+                        onNextClick = { setScreen(ScreenState.DIFFICULTY) },
+                        onBackClick = { setScreen(ScreenState.USER_MENU) },
+                    )
+
+                    ScreenState.SAVED_USER_MENU -> SavedUserView(
+                        onNextClick = { setScreen(ScreenState.DIFFICULTY) },
+                        onBackClick = { setScreen(ScreenState.USER_MENU) },
+                    )
+
+                    ScreenState.COGLICA_USER_MENU -> CoglicaUserView(
+                        onNextClick = { setScreen(ScreenState.DIFFICULTY) },
+                        onBackClick = {
+                            clearToken()
+                            setScreen(ScreenState.USER_MENU)
+                        },
+                    )
+
+                    ScreenState.RESULTS -> ResultsView(
+                        onBackClick = { setScreen(ScreenState.MAIN_MENU) },
+                    )
+
+                    ScreenState.DIFFICULTY -> DifficultyMenuView(
+                        onRandomClick = { setScreen(ScreenState.DIFFICULTY_RANDOM) },
+                        onFixedClick = { setScreen(ScreenState.DIFFICULTY_FIXED) },
+                        onBackClick = { setScreen(ScreenState.USER_MENU) },
+                    )
+
+                    ScreenState.DIFFICULTY_RANDOM -> RandomDifficultyView(
+                        onNextClick = { setScreen(ScreenState.GAME) },
+                        onBackClick = { setScreen(ScreenState.DIFFICULTY) },
+                    )
+
+                    ScreenState.DIFFICULTY_FIXED -> FixedDifficultyView(
+                        onNextClick = { setScreen(ScreenState.GAME) },
+                        onBackClick = { setScreen(ScreenState.DIFFICULTY) },
+                    )
+
+                    ScreenState.GAME -> {
+                        val intent = Intent(this@MainActivity, GameActivity::class.java)
+                        startActivity(intent)
+                    }
+                }
             }
-        } else {
-            Log.d("Panku", "No data in intent")
+            Spacer(modifier = Modifier.height(40.dp))
         }
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        shouldResetScreen = false // Az onResume ne reseteljen
-        handleDeeplink(intent)
     }
 }
 
