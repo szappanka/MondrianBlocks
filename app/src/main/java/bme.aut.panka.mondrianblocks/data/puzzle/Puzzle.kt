@@ -15,6 +15,6 @@ data class Puzzle(
     val id: Int = 0,
     val difficulty: PuzzleType,
     val blackBlocks: List<PuzzleBlock>,
-    val blocks: List<PuzzleBlock>
+    val blocks: MutableList<PuzzleBlock>,
 )
 

@@ -68,7 +68,7 @@ fun RandomDifficultyView(
                 viewModel.savePuzzle()
                 onNextClick()
             }
-            , text = stringResource(R.string.saved_users),
+            , text = "Játék indítása"
         )
 
         MondrianButton(

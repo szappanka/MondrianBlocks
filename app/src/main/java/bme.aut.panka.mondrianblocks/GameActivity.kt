@@ -48,13 +48,22 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.os.SystemClock
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.lifecycleScope
 import bme.aut.panka.mondrianblocks.data.puzzle.Puzzle
+import bme.aut.panka.mondrianblocks.data.puzzle.toFormattedString
 import bme.aut.panka.mondrianblocks.features.processor.GamePlaying
 import bme.aut.panka.mondrianblocks.features.processor.partials.BlueMaskProcessor
+import bme.aut.panka.mondrianblocks.features.processor.partials.FileHandler
 import bme.aut.panka.mondrianblocks.features.processor.partials.FindBlackAndHandProcessor
 import bme.aut.panka.mondrianblocks.features.processor.partials.InitialisationProcessor
 import bme.aut.panka.mondrianblocks.features.processor.partials.PuzzleMatchingProcessor
-import bme.aut.panka.mondrianblocks.features.processor.partials.RawImageProcessor
+import bme.aut.panka.mondrianblocks.network.ApiService
+import bme.aut.panka.mondrianblocks.network.CoglicaAuthManager
+import bme.aut.panka.mondrianblocks.network.GameplayResult
+import com.google.gson.Gson
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+import kotlin.toString
 
 enum class GameState {
     // a játék indítása folyamatban
@@ -79,6 +88,59 @@ class GameActivity : ComponentActivity() {
     private var processedBitmap by mutableStateOf<Bitmap?>(null)
     private var puzzleRect by mutableStateOf<Rect?>(null)
     private var puzzleLandmarks by mutableStateOf<List<List<PointF>>?>(null)
+    val fileHandler = FileHandler(this)
+    private lateinit var authManager: CoglicaAuthManager
+    private var isHeaderAdded = false
+    var savedToken = ""
+
+    @Inject
+    lateinit var apiService: ApiService
+
+    private val puzzleStateLog = StringBuilder()
+
+    private fun logPuzzleState() {
+        if (!isHeaderAdded) {
+            puzzleStateLog.append("time;puzzle;\n")
+            isHeaderAdded = true
+        }
+
+        val elapsedTime =
+            SystemClock.elapsedRealtime() - (playingStartTime ?: SystemClock.elapsedRealtime())
+        val formattedPuzzle = actualPuzzle?.toFormattedString() ?: "N/A"
+        puzzleStateLog.append("${elapsedTime};$formattedPuzzle;\n")
+    }
+
+    private fun savePuzzleStateToFile() {
+        val fileName = selectedUser?.id ?: 0
+        fileHandler.saveToFile(fileName.toString(), puzzleStateLog.toString())
+    }
+
+    private fun createGameplayLog(): String {
+        val log = GameplayResult(solution = puzzleStateLog.toString())
+        return Gson().toJson(log)
+    }
+
+
+    private fun sendPuzzleInfoToServer() {
+        val gameplayLog = createGameplayLog()
+
+        lifecycleScope.launch {
+            try {
+                val response = apiService.postGameplayResult(gameplayLog)
+                if (response.isSuccessful) {
+                    Log.d("GameActivity", "Mérési adatok sikeresen elküldve.")
+                } else {
+                    Log.e(
+                        "GameActivity",
+                        "Hiba az adatok elküldésekor: ${response.errorBody()?.string()}"
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("GameActivity", "Hiba történt: ${e.localizedMessage}")
+            }
+        }
+    }
+
 
     val selectedUser = GameData.selectedUser
     val selectedPuzzle = GameData.selectedPuzzle
@@ -95,9 +157,6 @@ class GameActivity : ComponentActivity() {
         }
     }
 
-
-    val rawImageProcessor = RawImageProcessor()
-
     private lateinit var findBlackAndHandProcessor: FindBlackAndHandProcessor
     private var blueMaskProcessor: BlueMaskProcessor = BlueMaskProcessor().apply {
         onImageProcessed = { result ->
@@ -113,7 +172,8 @@ class GameActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
+        authManager = CoglicaAuthManager(application)
+        savedToken = authManager.loadToken().toString()
         initProcessors()
 
         if (OpenCVLoader.initLocal()) {
@@ -131,7 +191,7 @@ class GameActivity : ComponentActivity() {
         }
     }
 
-    fun startCamera(
+    fun cameraSession(
         previewView: PreviewView,
         lensFacing: Int,
         context: Context,
@@ -163,13 +223,12 @@ class GameActivity : ComponentActivity() {
                                 puzzleRect = result.boundingRect
                                 gameState = GameState.FIND_BLACK
                             }
-                        } else if (gameState == GameState.FIND_BLACK) {
+                        } else if (gameState == GameState.FIND_BLACK || gameState == GameState.PLAYING) {
                             val result = currentProcessor.process(bitmap, puzzleRect)
                             if (result != null) {
                                 processedBitmap = result.bitmap
                                 puzzleRect = result.boundingRect
                                 puzzleLandmarks = result.landmarks
-                                Log.d("Panku", "Landmarks: $puzzleLandmarks")
                             }
                         } else {
                             val result = currentProcessor.process(bitmap, puzzleRect)
@@ -299,7 +358,7 @@ class GameActivity : ComponentActivity() {
 
                                 CameraPreview(
                                     onPreviewViewCreated = { previewView ->
-                                        startCamera(
+                                        cameraSession(
                                             previewView,
                                             CameraSelector.LENS_FACING_BACK,
                                             this@GameActivity,
@@ -310,11 +369,6 @@ class GameActivity : ComponentActivity() {
                                     bitmap = processedBitmap,
                                     landmarks = puzzleLandmarks
                                 )
-
-
-//                                if (gameState == GameState.FIND_BLACK) {
-//                                    DisplayProcessedBitmap(processedBitmap)
-//                                }
 
                                 if (gameState == GameState.STARTING || gameState == GameState.INITIALISING) {
                                     MondrianButton(
@@ -328,7 +382,16 @@ class GameActivity : ComponentActivity() {
 
                                 MondrianButton(
                                     onClick = {
-                                        // finish the activity
+                                        if (GameData.coglicaPuzzleId != null) {
+                                            sendPuzzleInfoToServer()
+                                        } else {
+                                            savePuzzleStateToFile()
+                                        }
+                                        authManager.logout(
+                                            savedToken,
+                                            onLogoutComplete = { finish() },
+                                            onError = { Log.d("GameActivity", "Logout error: $it") }
+                                        )
                                         finish()
                                     }, text = "Mérés befejezése"
                                 )
@@ -358,8 +421,12 @@ class GameActivity : ComponentActivity() {
             }
         }
 
-        puzzleMatchingProcessor = PuzzleMatchingProcessor(actualPuzzle = actualPuzzle,
-            updateActualPuzzle = { newPuzzle -> actualPuzzle = newPuzzle },
+        puzzleMatchingProcessor = PuzzleMatchingProcessor(
+            actualPuzzle = actualPuzzle,
+            updateActualPuzzle = { newPuzzle ->
+                actualPuzzle = newPuzzle
+                logPuzzleState()
+            },
             getPlayingStartTime = { playingStartTime },
             onGameFinished = {
                 runOnUiThread {

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import bme.aut.panka.mondrianblocks.GameData
 import bme.aut.panka.mondrianblocks.R
 import bme.aut.panka.mondrianblocks.components.MondrianButton
 
@@ -24,7 +25,10 @@ fun DifficultyMenuView(
             text = "Véletlenszerű pálya"
         )
         MondrianButton(
-            onClick = onBackClick,
+            onClick = {
+                GameData.coglicaPuzzleId = null
+                onBackClick()
+            },
             text = stringResource(R.string.back)
         )
     }

@@ -17,6 +17,6 @@ fun GameInit(puzzle: Puzzle) {
             puzzle = puzzle,
             squareSize = 15.dp,
         )
-        Text("Rakd ki az alábbi kezdő alakzatot! A játék elkezdődik utána automatikusan.")
+        Text("Rakd ki az alábbi kezdő alakzatot! A játék utána automatikusan elkezdődik.")
     }
 }

@@ -49,10 +49,6 @@ fun NewUserView(
             label = { Text("Név") },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
-//            colors = TextFieldDefaults.textFieldColors(
-//                containerColor = white,
-//                focusedIndicatorColor = blue,
-//            )
         )
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -77,10 +73,6 @@ fun NewUserView(
                         }
                     },
                 shape = RoundedCornerShape(8.dp),
-//                colors = TextFieldDefaults.textFieldColors(
-//                    containerColor = white,
-//                    focusedIndicatorColor = MondrianBlue,
-//                )
             )
             if (showError.value) {
                 Text("Helytelen formátum! (ÉÉÉÉ.HH.NN)", color = Color.Red)

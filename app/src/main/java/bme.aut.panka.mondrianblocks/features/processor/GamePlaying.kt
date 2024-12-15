@@ -11,6 +11,9 @@ import bme.aut.panka.mondrianblocks.data.puzzle.Puzzle
 
 @Composable
 fun GamePlaying (puzzle: Puzzle, time: Long) {
+    val minutes = (time / 1000) / 60
+    val seconds = (time / 1000) % 60
+
     Column {
         Row (
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -19,9 +22,11 @@ fun GamePlaying (puzzle: Puzzle, time: Long) {
                 puzzle = puzzle,
                 squareSize = 15.dp,
             )
-            Text("Ez az aktuális állapotod. Oldd meg a felaadatot!")
+            Column {
+            Text("Ez az aktuális állapotod. Oldd meg a feladatot!")
+                Text("Eltelt idő: $minutes perc $seconds másodperc")
+            }
         }
-        Text("Eltelt idő: $time")
     }
 }
 
