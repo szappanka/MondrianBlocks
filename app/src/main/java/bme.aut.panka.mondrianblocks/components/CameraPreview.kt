@@ -20,7 +20,7 @@ fun CameraPreview(
     onPreviewViewCreated: (PreviewView) -> Unit,
     rectangle: Rect?,
     bitmap: Bitmap?,
-    landmarks: List<List<PointF>>? = null // Új paraméter a landmarkokhoz
+    landmarks: List<List<PointF>>? = null
 ) {
     val context = LocalContext.current
     Box {
@@ -40,7 +40,7 @@ fun CameraPreview(
             CanvasView(
                 bitmap = bitmap,
                 rectangle = rectangle,
-                landmarks = landmarks, // Landmarkok átadása
+                landmarks = landmarks,
                 modifier = Modifier.matchParentSize()
             )
         }
@@ -52,25 +52,21 @@ fun CameraPreview(
 fun CanvasView(
     bitmap: Bitmap,
     rectangle: Rect,
-    landmarks: List<List<PointF>>? = null, // Új paraméter a landmarkokhoz
+    landmarks: List<List<PointF>>? = null,
     modifier: Modifier = Modifier,
 ) {
     Canvas(modifier = modifier) {
-        // Get Canvas dimensions
         val canvasWidth = size.width
         val canvasHeight = size.height
 
-        // Calculate scale factors based on the bitmap and Canvas dimensions
         val widthScale = canvasWidth / bitmap.width
         val heightScale = canvasHeight / bitmap.height
 
-        // Apply scaling to the rectangle's position and size
         val scaledLeft = rectangle.left * widthScale
         val scaledTop = rectangle.top * heightScale
         val scaledWidth = rectangle.width() * widthScale
         val scaledHeight = rectangle.height() * heightScale
 
-        // Draw rectangle
         drawRect(
             color = medium,
             topLeft = androidx.compose.ui.geometry.Offset(
@@ -84,10 +80,8 @@ fun CanvasView(
             style = Stroke(width = 10f)
         )
 
-        // Draw landmarks if they exist and are within the visible Canvas area
         landmarks?.forEach { handLandmarks ->
             handLandmarks.forEach { landmark ->
-                // Scale the landmark position
                 val scaledX = landmark.x * widthScale
                 val scaledY = landmark.y * heightScale
 

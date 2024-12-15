@@ -14,7 +14,6 @@ import androidx.camera.core.ImageProxy
 import bme.aut.panka.mondrianblocks.GameData.INWARD_OFFSET_PERCENTAGE
 import bme.aut.panka.mondrianblocks.GameData.initializedColors
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
-import kotlinx.coroutines.CoroutineScope
 import kotlin.math.sqrt
 
 data class ProcessedResult(
@@ -26,12 +25,8 @@ data class ProcessedResult(
 interface ImageProcessor {
     fun process(bitmap: Bitmap?, rectangle: Rect?): ProcessedResult?
 
-    // Az előző állapot tárolása
     var lastGridState: Array<Array<String?>>?
-
-    // Az utolsó változatlan állapot időbélyege
     var lastUnchangedTime: Long
-
     var isColorCheckDone: Boolean
 
     fun hasGridStateChanged(newGridState: Array<Array<String?>>): Boolean {
@@ -52,10 +47,8 @@ interface ImageProcessor {
         isHandDetected: Boolean
     ) {
         if (isHandDetected) {
-            // Ha van kéz, akkor az állapotot nem frissítjük
             lastUnchangedTime = SystemClock.elapsedRealtime()
         } else if (hasGridStateChanged(newGridState)) {
-            // Ha nincs kéz és változik a rács állapota, frissítjük az időt
             lastUnchangedTime = SystemClock.elapsedRealtime()
             lastGridState = newGridState
             isColorCheckDone = false
@@ -63,16 +56,12 @@ interface ImageProcessor {
     }
 
 
-    /**
-     * Ellenőrzi, hogy egy adott állapot x ideig változatlan-e
-     */
     fun isStableForDuration(
         durationMillis: Long,
         gridState: Array<Array<String?>>,
         isHandDetected: Boolean
     ): Boolean {
         if (isHandDetected) {
-            // Ha kéz van a képen, az állapot nem stabil
             return false
         }
         val elapsedMillis = SystemClock.elapsedRealtime() - lastUnchangedTime
@@ -123,9 +112,9 @@ interface ImageProcessor {
 
         val width = image.width
         val height = image.height
-        val yBuffer = image.planes[0].buffer // Y plane
-        val uBuffer = image.planes[1].buffer // U plane
-        val vBuffer = image.planes[2].buffer // V plane
+        val yBuffer = image.planes[0].buffer
+        val uBuffer = image.planes[1].buffer
+        val vBuffer = image.planes[2].buffer
         val yRowStride = image.planes[0].rowStride
         val uvRowStride = image.planes[1].rowStride
         val uvPixelStride = image.planes[1].pixelStride
@@ -151,13 +140,11 @@ interface ImageProcessor {
 
         val bitmap = Bitmap.createBitmap(argbArray, width, height, Bitmap.Config.ARGB_8888)
 
-        // Rotate the bitmap 90 degrees to correct orientation
         val matrix = Matrix().apply {
             postRotate(90f)
         }
         val rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
 
-        // Crop to center square
         return cropCenterToSquare(rotatedBitmap)
     }
 
@@ -180,7 +167,6 @@ interface ImageProcessor {
 
         val minDistances = distances.mapValues { it.value.minOrNull() ?: Double.MAX_VALUE }
         val closestEntry = minDistances.minByOrNull { it.value }
-        //Log.d("ImageProcessor", "Closest color: ${closestEntry?.key}, distance: ${closestEntry?.value}")
 
         val threshold = 40.0
 

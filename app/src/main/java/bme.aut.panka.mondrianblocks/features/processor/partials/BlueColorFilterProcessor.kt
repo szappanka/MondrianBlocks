@@ -33,7 +33,6 @@ class BlueMaskProcessor : ImageProcessor {
             val contours = ArrayList<MatOfPoint>()
             Imgproc.findContours(mask, contours, Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE)
 
-            // Calculate a single bounding rectangle encompassing all detected blue areas
             var minX = Int.MAX_VALUE
             var minY = Int.MAX_VALUE
             var maxX = Int.MIN_VALUE
@@ -50,28 +49,24 @@ class BlueMaskProcessor : ImageProcessor {
             val combinedRect = if (contours.isNotEmpty()) {
                 Rect(minX, minY, maxX, maxY)
             } else {
-                null // No contours found
+                null
             }
 
-            // Create the result bitmap with the blue mask applied
             val maskedMat = Mat()
             Core.bitwise_and(mat, mat, maskedMat, mask)
 
             val resultBitmap = Bitmap.createBitmap(maskedMat.cols(), maskedMat.rows(), Bitmap.Config.ARGB_8888)
             Utils.matToBitmap(maskedMat, resultBitmap)
 
-            // Release resources
             mat.release()
             hsvMat.release()
             mask.release()
             maskedMat.release()
 
-            // Prepare the result with a single bounding rectangle
             val result = ProcessedResult(resultBitmap, combinedRect)
             return result
         }
 
-        // Return null ProcessedResult if bitmap is null
         return ProcessedResult(null, null)
     }
 }

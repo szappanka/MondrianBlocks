@@ -51,10 +51,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import bme.aut.panka.mondrianblocks.data.puzzle.Puzzle
 import bme.aut.panka.mondrianblocks.features.processor.GamePlaying
 import bme.aut.panka.mondrianblocks.features.processor.partials.BlueMaskProcessor
+import bme.aut.panka.mondrianblocks.features.processor.partials.FileHandler
 import bme.aut.panka.mondrianblocks.features.processor.partials.FindBlackAndHandProcessor
 import bme.aut.panka.mondrianblocks.features.processor.partials.InitialisationProcessor
 import bme.aut.panka.mondrianblocks.features.processor.partials.PuzzleMatchingProcessor
-import bme.aut.panka.mondrianblocks.features.processor.partials.RawImageProcessor
 
 enum class GameState {
     // a játék indítása folyamatban
@@ -79,6 +79,7 @@ class GameActivity : ComponentActivity() {
     private var processedBitmap by mutableStateOf<Bitmap?>(null)
     private var puzzleRect by mutableStateOf<Rect?>(null)
     private var puzzleLandmarks by mutableStateOf<List<List<PointF>>?>(null)
+    val fileHandler = FileHandler(this)
 
     val selectedUser = GameData.selectedUser
     val selectedPuzzle = GameData.selectedPuzzle
@@ -94,9 +95,6 @@ class GameActivity : ComponentActivity() {
             showPermissionRequestScreen()
         }
     }
-
-
-    val rawImageProcessor = RawImageProcessor()
 
     private lateinit var findBlackAndHandProcessor: FindBlackAndHandProcessor
     private var blueMaskProcessor: BlueMaskProcessor = BlueMaskProcessor().apply {
@@ -131,7 +129,7 @@ class GameActivity : ComponentActivity() {
         }
     }
 
-    fun startCamera(
+    fun cameraSession(
         previewView: PreviewView,
         lensFacing: Int,
         context: Context,
@@ -169,7 +167,6 @@ class GameActivity : ComponentActivity() {
                                 processedBitmap = result.bitmap
                                 puzzleRect = result.boundingRect
                                 puzzleLandmarks = result.landmarks
-                                Log.d("Panku", "Landmarks: $puzzleLandmarks")
                             }
                         } else {
                             val result = currentProcessor.process(bitmap, puzzleRect)
@@ -299,7 +296,7 @@ class GameActivity : ComponentActivity() {
 
                                 CameraPreview(
                                     onPreviewViewCreated = { previewView ->
-                                        startCamera(
+                                        cameraSession(
                                             previewView,
                                             CameraSelector.LENS_FACING_BACK,
                                             this@GameActivity,
@@ -310,11 +307,6 @@ class GameActivity : ComponentActivity() {
                                     bitmap = processedBitmap,
                                     landmarks = puzzleLandmarks
                                 )
-
-
-//                                if (gameState == GameState.FIND_BLACK) {
-//                                    DisplayProcessedBitmap(processedBitmap)
-//                                }
 
                                 if (gameState == GameState.STARTING || gameState == GameState.INITIALISING) {
                                     MondrianButton(
@@ -328,10 +320,17 @@ class GameActivity : ComponentActivity() {
 
                                 MondrianButton(
                                     onClick = {
-                                        // finish the activity
                                         finish()
                                     }, text = "Mérés befejezése"
                                 )
+
+                                /*
+                                MondrianButton(
+                                    onClick = {
+                                        fileHandler.saveToFile("5", "Ez egy Android 13+ kompatibilis fájl tartalma.")
+                                    }, text = "Fájl mentése"
+                                )
+                                */
                             }
                         }
                     }
@@ -358,7 +357,8 @@ class GameActivity : ComponentActivity() {
             }
         }
 
-        puzzleMatchingProcessor = PuzzleMatchingProcessor(actualPuzzle = actualPuzzle,
+        puzzleMatchingProcessor = PuzzleMatchingProcessor(
+            actualPuzzle = actualPuzzle,
             updateActualPuzzle = { newPuzzle -> actualPuzzle = newPuzzle },
             getPlayingStartTime = { playingStartTime },
             onGameFinished = {

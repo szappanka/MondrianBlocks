@@ -38,7 +38,6 @@ class InitialisationProcessor : ImageProcessor {
         }
 
         if (bitmap == null || rectangle == null) {
-            Log.e("InitialisationProcessor", "Bitmap or Rectangle is null")
             return null
         }
 
@@ -46,11 +45,11 @@ class InitialisationProcessor : ImageProcessor {
             processingMutex.withLock {
                 if (isProcessed) return@withLock
 
-                bitmap?.let {
+                bitmap.let {
                     val mat = Mat()
                     Utils.bitmapToMat(it, mat)
 
-                    val fieldWidth = rectangle?.width()!! / 8
+                    val fieldWidth = rectangle.width() / 8
                     val fieldHeight = rectangle.height() / 8
 
                     val innerFieldWidth = (fieldWidth * (1 - INWARD_OFFSET_PERCENTAGE)).toInt()

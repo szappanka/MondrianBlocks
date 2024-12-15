@@ -132,7 +132,7 @@ fun MondrianPreview(
     }
 
 }
-/*
+
 @Preview
 @Composable
 fun MondrianPreviewPreview() {
@@ -140,40 +140,6 @@ fun MondrianPreviewPreview() {
         puzzle = Puzzle(
             id = 0,
             difficulty = PuzzleType.EASY,
-            blackBlocks = listOf(
-                PuzzleBlock(block = Block(
-                    width = 1,
-                    height = 1,
-                    color = MondrianColor.BLACK
-                ), x = 7, y = 5, orientation = MondrianOrientation.HORIZONTAL),
-                PuzzleBlock(block = Block(
-                    width = 2,
-                    height = 1,
-                    color = MondrianColor.BLACK
-                ), x = 3, y = 6, orientation = MondrianOrientation.HORIZONTAL),
-                PuzzleBlock(block = Block(
-                    width = 1,
-                    height = 3,
-                    color = MondrianColor.BLACK
-                ), x = 2, y = 5, orientation = MondrianOrientation.VERTICAL),
-            ),
-            blocks = emptyList()
-
-        ),
-        squareSize = 10.dp,
-    )
-}
-
-*/
-
-
-@Preview
-@Composable
-fun MondrianPreviewPreview() {
-    MondrianPreview(
-        puzzle = Puzzle(
-            id = 0,
-            difficulty = PuzzleType.NONE,
             blackBlocks = listOf(
                 PuzzleBlock(
                     block = Block(
@@ -195,8 +161,18 @@ fun MondrianPreviewPreview() {
                     y = 7,
                     orientation = MondrianOrientation.HORIZONTAL
                 ),
+                PuzzleBlock(
+                    block = Block(
+                        width = 1,
+                        height = 1,
+                        color = MondrianColor.BLACK
+                    ),
+                    x = 2,
+                    y = 6,
+                    orientation = MondrianOrientation.HORIZONTAL
+                ),
             ),
-            blocks = listOf(
+            blocks = mutableListOf(
                 PuzzleBlock(
                     block = Block(
                         width = 3,

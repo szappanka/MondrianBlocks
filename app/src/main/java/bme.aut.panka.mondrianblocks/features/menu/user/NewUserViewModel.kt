@@ -1,6 +1,5 @@
 package bme.aut.panka.mondrianblocks.features.menu.user
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import bme.aut.panka.mondrianblocks.GameData

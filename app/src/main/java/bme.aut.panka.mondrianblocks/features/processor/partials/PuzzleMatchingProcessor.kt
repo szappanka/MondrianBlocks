@@ -6,6 +6,7 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.os.SystemClock
 import android.util.Log
+import bme.aut.panka.mondrianblocks.GameData
 import bme.aut.panka.mondrianblocks.data.puzzle.Puzzle
 import bme.aut.panka.mondrianblocks.data.puzzle.PuzzleType
 import org.opencv.android.Utils
@@ -23,6 +24,7 @@ class PuzzleMatchingProcessor(
     override var isColorCheckDone: Boolean = false
 
     val handRecognizer = HandRecognizer(context)
+    private val blockRecognitionHelper = BlockRecognitionHelper(context)
 
     override fun process(bitmap: Bitmap?, rectangle: Rect?): ProcessedResult? {
         var detectedLandmarks: List<List<PointF>>? = null
@@ -53,33 +55,45 @@ class PuzzleMatchingProcessor(
                 if (isWinner(newPuzzle)) {
                     onGameFinished()
                 } else {
-                    // itt meg kell nézni, hogy változott-e ahhoz képest, ami az előző állapot volt, mert ha nem, akkor nem kell frissíteni
                     updateActualPuzzle(newPuzzle)
                 }
             }
-            return ProcessedResult(bitmap = resultBitmap, boundingRect = rectangle)
+            return ProcessedResult(bitmap = resultBitmap, boundingRect = rectangle, landmarks = detectedLandmarks)
         }
         return null
     }
 
     private fun recognizePuzzle(gridColors: Array<Array<String?>>): Puzzle {
-        val playingStartTime = getPlayingStartTime() // A legfrissebb érték lekérése
-        playingStartTime?.let { startTime ->
-            val elapsedTime = SystemClock.elapsedRealtime() - startTime
-            Log.d("Panku", "Time elapsed since playing started: ${elapsedTime}ms")
-        } ?: Log.d("Panku", "Playing start time not set.")
-
-        // TODO: implement puzzle recognition logic
-        return actualPuzzle ?: Puzzle(
-            id = 0,
-            difficulty = PuzzleType.NONE,
-            blackBlocks = emptyList(),
-            blocks = emptyList()
+        var solution = Puzzle(
+            blocks = mutableListOf(),
+            blackBlocks = GameData.selectedPuzzle?.blackBlocks ?: mutableListOf(),
+            difficulty = GameData.selectedPuzzle?.difficulty ?: PuzzleType.NONE,
         )
+
+        val whiteBlock = blockRecognitionHelper.recognizeWhiteBlock(gridColors)
+        whiteBlock?.let {
+            solution.blocks.add(it)
+        }
+
+        val yellowBlocks = blockRecognitionHelper.recognizeYellowBlocks(gridColors)
+        solution.blocks.addAll(yellowBlocks)
+
+        val redBlocks = blockRecognitionHelper.recognizeRedBlocks(gridColors)
+        redBlocks?.let {
+            solution.blocks.addAll(it)
+        }
+
+        val blueBlocks = blockRecognitionHelper.recognizeBlueBlocks(gridColors)
+        blueBlocks?.let {
+            solution.blocks.addAll(it)
+        }
+
+
+        return solution
     }
 
     private fun isWinner(puzzle: Puzzle): Boolean {
-        return puzzle.blocks.size == puzzle.blackBlocks.size
+        return puzzle.blocks.size == 8
     }
 }
 

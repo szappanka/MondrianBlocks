@@ -10,109 +10,113 @@ import bme.aut.panka.mondrianblocks.data.user.User
 
 object GameData {
     val STARTER_PUZZLE = Puzzle(
-        id = 0,
-        difficulty = PuzzleType.NONE,
-        blackBlocks = listOf(
+        id = 0, difficulty = PuzzleType.NONE, blackBlocks = listOf(
             PuzzleBlock(
                 block = Block(
-                    width = 2,
-                    height = 1,
-                    color = MondrianColor.BLACK
-                ),
-                x = 5,
-                y = 4,
-                orientation = MondrianOrientation.HORIZONTAL
+                    width = 2, height = 1, color = MondrianColor.BLACK
+                ), x = 5, y = 4, orientation = MondrianOrientation.HORIZONTAL
             ),
             PuzzleBlock(
                 block = Block(
-                    width = 3,
-                    height = 1,
-                    color = MondrianColor.BLACK
-                ),
-                x = 2,
-                y = 7,
-                orientation = MondrianOrientation.HORIZONTAL
+                    width = 3, height = 1, color = MondrianColor.BLACK
+                ), x = 2, y = 7, orientation = MondrianOrientation.HORIZONTAL
             ),
-        ),
-        blocks = listOf(
+        ), blocks = mutableListOf(
             PuzzleBlock(
                 block = Block(
-                    width = 3,
-                    height = 2,
-                    color = MondrianColor.BLUE
-                ),
-                x = 1,
-                y = 1,
-                orientation = MondrianOrientation.HORIZONTAL
+                    width = 3, height = 2, color = MondrianColor.BLUE
+                ), x = 1, y = 1, orientation = MondrianOrientation.HORIZONTAL
             ),
             PuzzleBlock(
                 block = Block(
-                    width = 4,
-                    height = 2,
-                    color = MondrianColor.BLUE
-                ),
-                x = 5,
-                y = 7,
-                orientation = MondrianOrientation.HORIZONTAL
+                    width = 4, height = 2, color = MondrianColor.BLUE
+                ), x = 5, y = 7, orientation = MondrianOrientation.HORIZONTAL
             ),
             PuzzleBlock(
                 block = Block(
-                    width = 3,
-                    height = 3,
-                    color = MondrianColor.YELLOW
-                ),
-                x = 1,
-                y = 3,
-                orientation = MondrianOrientation.HORIZONTAL
+                    width = 3, height = 3, color = MondrianColor.YELLOW
+                ), x = 1, y = 3, orientation = MondrianOrientation.HORIZONTAL
             ),
             PuzzleBlock(
                 block = Block(
-                    width = 2,
-                    height = 2,
-                    color = MondrianColor.YELLOW
-                ),
-                x = 7,
-                y = 4,
-                orientation = MondrianOrientation.HORIZONTAL
+                    width = 2, height = 2, color = MondrianColor.YELLOW
+                ), x = 7, y = 4, orientation = MondrianOrientation.HORIZONTAL
             ),
             PuzzleBlock(
                 block = Block(
-                    width = 5,
-                    height = 1,
-                    color = MondrianColor.RED
-                ),
-                x = 4,
-                y = 1,
-                orientation = MondrianOrientation.VERTICAL
+                    width = 5, height = 1, color = MondrianColor.RED
+                ), x = 4, y = 1, orientation = MondrianOrientation.VERTICAL
             ),
             PuzzleBlock(
                 block = Block(
-                    width = 4,
-                    height = 1,
-                    color = MondrianColor.RED
-                ),
-                x = 1,
-                y = 8,
-                orientation = MondrianOrientation.HORIZONTAL
+                    width = 4, height = 1, color = MondrianColor.RED
+                ), x = 1, y = 8, orientation = MondrianOrientation.HORIZONTAL
             ),
             PuzzleBlock(
                 block = Block(
-                    width = 4,
-                    height = 3,
-                    color = MondrianColor.WHITE
-                ),
-                x = 5,
-                y = 1,
-                orientation = MondrianOrientation.HORIZONTAL
+                    width = 4, height = 3, color = MondrianColor.WHITE
+                ), x = 5, y = 1, orientation = MondrianOrientation.HORIZONTAL
             ),
         )
     )
 
     var selectedUser: User? = null
     var selectedPuzzle: Puzzle? = null
+    var coglicaPuzzleId: Int? = null
 
     val initializedColors: MutableMap<String, List<IntArray>> = mutableMapOf()
 
     const val INWARD_OFFSET_PERCENTAGE = 0.2
 
+    val yellow_blocks = listOf<Block>(
+        Block(
+            width = 3, height = 3, color = MondrianColor.YELLOW
+        ), Block(
+            width = 2, height = 2, color = MondrianColor.YELLOW
+        )
+    )
+
+    val white_block = Block(
+        width = 4, height = 3, color = MondrianColor.WHITE
+    )
+
+    val red_blocks = listOf<Block>(
+        Block(
+            width = 5, height = 1, color = MondrianColor.RED
+        ), Block(
+            width = 4, height = 1, color = MondrianColor.RED
+        )
+    )
+
+    val blue_blocks = listOf<Block>(
+        Block(
+            width = 5, height = 2, color = MondrianColor.BLUE
+        ),
+        Block(
+            width = 4, height = 2, color = MondrianColor.BLUE
+        ),
+        Block(
+            width = 3, height = 2, color = MondrianColor.BLUE
+        ),
+    )
+
+    val blocks = listOf<Block>(
+        Block(
+            width = 3, height = 3, color = MondrianColor.YELLOW
+        ), Block(
+            width = 2, height = 2, color = MondrianColor.YELLOW
+        ), Block(
+            width = 4, height = 3, color = MondrianColor.WHITE
+        ), Block(
+            width = 5, height = 2, color = MondrianColor.BLUE
+        ), Block(
+            width = 4, height = 2, color = MondrianColor.BLUE
+        ), Block(
+            width = 3, height = 2, color = MondrianColor.BLUE
+        ), Block(
+            width = 5, height = 1, color = MondrianColor.RED
+        ), Block(
+            width = 4, height = 1, color = MondrianColor.RED
+        )
+    )
 }

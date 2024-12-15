@@ -5,10 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.PointF
 import android.graphics.Rect
 import android.os.SystemClock
-import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import bme.aut.panka.mondrianblocks.GameData
-import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import org.opencv.android.Utils
 import org.opencv.core.Mat
 

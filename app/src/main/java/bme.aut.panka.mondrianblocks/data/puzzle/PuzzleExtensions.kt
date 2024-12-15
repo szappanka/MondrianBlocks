@@ -9,7 +9,6 @@ fun Puzzle.toFormattedString(): String {
     val cols = 8
     val grid = Array(rows) { Array(cols) { "-" } }
 
-    // BlackBlocks konvertálása
     blackBlocks.forEach { puzzleBlock ->
         val (width, height) = when (puzzleBlock.orientation) {
             MondrianOrientation.HORIZONTAL -> puzzleBlock.block.width to puzzleBlock.block.height
@@ -28,7 +27,6 @@ fun Puzzle.toFormattedString(): String {
         }
     }
 
-    // Normál blokkok konvertálása
     blocks.forEach { puzzleBlock ->
         val colorInitial = when (puzzleBlock.block.color) {
             MondrianColor.YELLOW -> "y"

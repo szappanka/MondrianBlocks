@@ -28,7 +28,7 @@ fun CoglicaUserView(
             viewModel.handleAuthorizationResponse(intent,
                 onSuccess = { accessToken ->
                     Log.d("Panku", "Access Token: $accessToken")
-                    //onNextClick()
+                    onNextClick()
                 },
                 onError = { error ->
                     Log.d("Panku", "Authorization failed: $error")

@@ -128,7 +128,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -151,7 +151,7 @@ object DatabaseModule {
                                         y = 8,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -174,7 +174,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -197,7 +197,7 @@ object DatabaseModule {
                                         y = 2,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -220,7 +220,7 @@ object DatabaseModule {
                                         y = 3,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -243,7 +243,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -266,7 +266,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -289,7 +289,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -312,7 +312,7 @@ object DatabaseModule {
                                         y = 7,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -335,7 +335,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -358,7 +358,7 @@ object DatabaseModule {
                                         y = 3,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -381,7 +381,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -404,7 +404,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -427,7 +427,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -450,7 +450,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -473,7 +473,7 @@ object DatabaseModule {
                                         y = 3,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -496,7 +496,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -519,7 +519,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -542,7 +542,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -565,7 +565,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -588,7 +588,7 @@ object DatabaseModule {
                                         y = 7,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -611,7 +611,7 @@ object DatabaseModule {
                                         y = 2,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -636,7 +636,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -659,7 +659,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -682,7 +682,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -705,7 +705,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -728,7 +728,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -751,7 +751,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -774,7 +774,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -797,7 +797,7 @@ object DatabaseModule {
                                         y = 3,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -820,7 +820,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -843,7 +843,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -866,7 +866,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -889,7 +889,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -912,7 +912,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -935,7 +935,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -958,7 +958,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -981,7 +981,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1004,7 +1004,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1027,7 +1027,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1050,7 +1050,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1073,7 +1073,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1096,7 +1096,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1119,7 +1119,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1144,7 +1144,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1167,7 +1167,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1190,7 +1190,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1213,7 +1213,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1236,7 +1236,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1259,7 +1259,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1282,7 +1282,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1305,7 +1305,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1328,7 +1328,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1351,7 +1351,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1374,7 +1374,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1397,7 +1397,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1420,7 +1420,7 @@ object DatabaseModule {
                                         y = 2,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1443,7 +1443,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1466,7 +1466,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1489,7 +1489,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1512,7 +1512,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1535,7 +1535,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1558,7 +1558,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1581,7 +1581,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1604,7 +1604,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1627,7 +1627,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1652,7 +1652,7 @@ object DatabaseModule {
                                         y = 3,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1675,7 +1675,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1698,7 +1698,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1721,7 +1721,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1744,7 +1744,7 @@ object DatabaseModule {
                                         y = 3,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1767,7 +1767,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1790,7 +1790,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1813,7 +1813,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1836,7 +1836,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1859,7 +1859,7 @@ object DatabaseModule {
                                         y = 3,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1882,7 +1882,7 @@ object DatabaseModule {
                                         y = 3,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1905,7 +1905,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1928,7 +1928,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1951,7 +1951,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1974,7 +1974,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -1997,7 +1997,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -2020,7 +2020,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -2043,7 +2043,7 @@ object DatabaseModule {
                                         y = 8,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -2066,7 +2066,7 @@ object DatabaseModule {
                                         y = 4,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -2089,7 +2089,7 @@ object DatabaseModule {
                                         y = 5,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -2112,7 +2112,7 @@ object DatabaseModule {
                                         y = 6,
                                         orientation = MondrianOrientation.HORIZONTAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
 
@@ -2135,7 +2135,7 @@ object DatabaseModule {
                                         y = 1,
                                         orientation = MondrianOrientation.VERTICAL
                                     )
-                                ), blocks = listOf()
+                                ), blocks = mutableListOf()
                             )
                         )
                     }
