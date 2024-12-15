@@ -129,7 +129,6 @@ class BlockRecognitionHelper(val context: Context) {
         findArrangements(redBlocks, mutableListOf())
 
         if (possibleArrangements.isEmpty()) {
-            Log.d("Panku", "No valid arrangement found.")
             return null
         }
 
@@ -138,15 +137,10 @@ class BlockRecognitionHelper(val context: Context) {
 
         return when {
             maxArrangement == null -> {
-                Log.d("Panku", "No valid arrangement found.")
                 null
             }
 
             maxArrangement.size == redBlocks.size -> {
-                Log.d(
-                    "Panku",
-                    "Single maximum arrangement found with all ${maxArrangement.size} blocks."
-                )
                 maxArrangement.map { (block, position, orientation) ->
                     val (x, y) = position
                     PuzzleBlock(block, x + 1, y + 1, orientation)
@@ -154,10 +148,6 @@ class BlockRecognitionHelper(val context: Context) {
             }
 
             maxArrangements.size == 1 -> {
-                Log.d(
-                    "Panku",
-                    "Single maximum partial arrangement found with ${maxArrangement.size} blocks."
-                )
                 maxArrangement.map { (block, position, orientation) ->
                     val (x, y) = position
                     PuzzleBlock(block, x + 1, y + 1, orientation)
@@ -180,20 +170,7 @@ class BlockRecognitionHelper(val context: Context) {
                 }
 
                 if (validArrangements.isEmpty()) {
-                    Log.d("Panku", "No valid arrangements left after filtering.")
-                    return null
-                }
-
-                Log.d(
-                    "Panku",
-                    "Filtered valid arrangements found with ${validArrangements[0].size} blocks."
-                )
-
-                validArrangements.forEach { arrangement ->
-                    arrangement.forEach { (block, position, orientation) ->
-                        val (x, y) = position
-                        Log.d("Panku", "Block: $block, Position: $x, $y, Orientation: $orientation")
-                    }
+                   return null
                 }
                 validArrangements[0].map { (block, position, orientation) ->
                     val (x, y) = position
@@ -291,7 +268,6 @@ class BlockRecognitionHelper(val context: Context) {
         findArrangements(blueBlocks, mutableListOf())
 
         if (possibleArrangements.isEmpty()) {
-            Log.d("Panku", "No valid arrangement found for blue blocks.")
             return null
         }
 
@@ -300,15 +276,10 @@ class BlockRecognitionHelper(val context: Context) {
 
         return when {
             maxArrangement == null -> {
-                Log.d("Panku", "No valid arrangement found for blue blocks.")
                 null
             }
 
             maxArrangement.size == blueBlocks.size -> {
-                Log.d(
-                    "Panku",
-                    "Single maximum arrangement found with all ${maxArrangement.size} blue blocks."
-                )
                 maxArrangement.map { (block, position, orientation) ->
                     val (x, y) = position
                     PuzzleBlock(block, x + 1, y + 1, orientation)
@@ -316,10 +287,6 @@ class BlockRecognitionHelper(val context: Context) {
             }
 
             maxArrangements.size == 1 -> {
-                Log.d(
-                    "Panku",
-                    "Single maximum partial arrangement found with ${maxArrangement.size} blue blocks."
-                )
                 maxArrangement.map { (block, position, orientation) ->
                     val (x, y) = position
                     PuzzleBlock(block, x + 1, y + 1, orientation)
@@ -342,20 +309,7 @@ class BlockRecognitionHelper(val context: Context) {
                 }
 
                 if (validArrangements.isEmpty()) {
-                    Log.d("Panku", "No valid arrangements left after filtering for blue blocks.")
                     return null
-                }
-
-                Log.d(
-                    "Panku",
-                    "Filtered valid arrangements found with ${validArrangements[0].size} blue blocks."
-                )
-
-                validArrangements.forEach { arrangement ->
-                    arrangement.forEach { (block, position, orientation) ->
-                        val (x, y) = position
-                        Log.d("Panku", "Block: $block, Position: $x, $y, Orientation: $orientation")
-                    }
                 }
                 validArrangements[0].map { (block, position, orientation) ->
                     val (x, y) = position

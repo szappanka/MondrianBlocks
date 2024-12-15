@@ -51,7 +51,6 @@ fun CoglicaUserView(
         )
         MondrianButton(
             onClick = onBackClick,
-            // from string resources
             text = "Vissza"
         )
     }

@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.PointF
 import android.graphics.Rect
 import android.os.SystemClock
+import android.util.Log
 import bme.aut.panka.mondrianblocks.GameData
 import org.opencv.android.Utils
 import org.opencv.core.Mat
@@ -41,16 +42,19 @@ class FindBlackAndHandProcessor(val context: Context) : ImageProcessor {
             updateState(gridColors, isHandDetected)
 
             if (isStableForDuration(
-                    durationMillis = 2000,
+                    durationMillis = 1000,
                     gridState = gridColors,
                     isHandDetected = isHandDetected
                 ) && !isColorCheckDone
             ) {
+                Log.d("FindBlackAndHandProcessor", "Checking for all black placed")
                 if (
                     gridColors.flatten().count { it == "BLACK" } == 6) {
-                    if (checkStarterPuzzleMatch(gridColors)) {
+                    Log.d("FindBlackAndHandProcessor", "All black placed")
+
+                    //if (checkStarterPuzzleMatch(gridColors)) {
                         onAllBlackPlaced()
-                    }
+                    //}
                 }
                 isColorCheckDone = true
             }

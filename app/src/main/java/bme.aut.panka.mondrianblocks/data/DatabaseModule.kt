@@ -1742,7 +1742,7 @@ object DatabaseModule {
                                         block = blackBlock3,
                                         x = 6,
                                         y = 3,
-                                        orientation = MondrianOrientation.VERTICAL
+                                        orientation = MondrianOrientation.HORIZONTAL
                                     )
                                 ), blocks = mutableListOf()
                             )
